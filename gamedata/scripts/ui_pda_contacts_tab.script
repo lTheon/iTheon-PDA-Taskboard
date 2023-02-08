@@ -1,0 +1,556 @@
+---------------------------------
+----- Written by Darryl123 ------
+---------------------------------
+
+-- Column and row limits.
+local column_limit = 5
+local row_limit = 10
+
+local SINGLETON = nil
+function get_ui()
+	SINGLETON = SINGLETON or pda_contacts_tab()
+	SINGLETON:Reset()
+	return SINGLETON
+end
+-- Constructor.
+class "pda_contacts_tab" (CUIScriptWnd)
+function pda_contacts_tab:__init() super()
+	self.contact_info = {}
+	self.taskboard_info = {}
+	
+	self.clr_red 	= utils_xml.get_color("red",true) -- GetARGB(255, 255, 1, 1)
+	self.clr_green 	= utils_xml.get_color("green",true) -- GetARGB(255, 1, 255, 1)
+	self.clr_yellow = utils_xml.get_color("yellow",true) -- GetARGB(255, 255, 255, 1)
+
+	self:InitControls()
+end
+
+-- Initialise the interface.
+function pda_contacts_tab:InitControls()
+	self:SetWndRect(Frect():set(0, 0, 1024, 768))
+	
+	-- Main frame.
+	local xml = CScriptXmlInit()
+	xml:ParseFile("pda_contacts.xml")
+	xml:InitFrame("frame1", self)
+	xml:InitFrame("frame2", self)
+	xml:InitFrame("frame3", self)
+	
+	-- Refresh checkbox.
+	self.auto_chk = xml:InitCheck("auto_check", self)
+	self.auto_chk:SetCheck(axr_main.config:r_value("pda_contacts", "check_refresh", 1, false))
+	self:Register(self.auto_chk, "check_refresh")
+	self:AddCallback("check_refresh", ui_events.BUTTON_CLICKED, self.SaveCheckBoxSettings, self)
+	
+	-- 'Known contacts' checkbox.
+	self.show_all = xml:InitCheck("show_all", self)
+	self.show_all:SetCheck(axr_main.config:r_value("pda_contacts", "check_show_known", 1, true))
+	self:Register(self.show_all, "check_show_known")
+	self:AddCallback("check_show_known", ui_events.BUTTON_CLICKED, self.SaveCheckBoxSettings, self)
+	
+	-- List of contact rows.
+	self.contact_listbox = xml:InitListBox("contact_listbox", self)
+	self.contact_listbox:SetItemHeight(140)
+	self:Register(self.contact_listbox, "contact_listbox")
+	for i = 1, row_limit do
+		self.contact_listbox:AddExistingItem(ui_contact_row(self, i, xml))
+	end
+	
+	-- Hint Window
+	self.hint_wnd = utils_ui.UIHint(self)
+
+	-- Taskboard
+	self.taskboard_listbox = xml:InitListBox("taskboard_listbox", self)
+	self.taskboard_listbox:SetItemHeight(140)
+	self:Register(self.taskboard_listbox, "taskboard_listbox")
+	for i = 1, row_limit do
+		self.taskboard_listbox:AddExistingItem(ui_taskboard_row(self, i, xml))
+	end
+end
+
+-- Save checkboxes.
+function pda_contacts_tab:SaveCheckBoxSettings()
+	axr_main.config:w_value("pda_contacts", "check_refresh",  self.auto_chk:GetCheck())
+	axr_main.config:w_value("pda_contacts", "check_show_known",  self.show_all:GetCheck())
+	axr_main.config:save()
+end
+
+-- Update the window, call via engine.
+function pda_contacts_tab:Update()
+	CUIScriptWnd.Update(self)
+	
+	-- Auto-update if checked.
+	if self.auto_chk:GetCheck() then
+		local tg = time_global()
+		if not self._tmr or self._tmr < tg then
+			self._tmr = tg + 5000
+			self:Reset()
+		end
+	end
+	
+	-- Create the hint window.
+	for i=1, (column_limit * row_limit) do
+		if (self.contact_info[i].icon_field:IsShown()) then 
+			local pos = GetCursorPosition()
+			local rect = Frect():set(0, 0, 0, 0)
+			self.contact_info[i].icon_field:GetAbsoluteRect(rect)
+
+			if (utils_data.pos_in_rect(pos, rect)) then 
+				self.hint_wnd:Update(self.contact_info[i].hint)
+				return
+			end
+		end
+	end
+	self.hint_wnd:Update()
+end
+
+-- Reset the interface.
+function pda_contacts_tab:Reset()
+	-- Retrieve the detection radius used by contact counter.
+	local radius = (ini_sys:r_float_ex("device_pda", "radius") or 68) ^ 2
+
+	-- Erase all pre-existing information.
+	for i = 1, (column_limit * row_limit) do
+		if (self.contact_info[i]) then
+			self.contact_info[i].comm_field:SetText("")
+			self.contact_info[i].comm_label:SetText("")
+			self.contact_info[i].icon_field:Show(false)
+			self.contact_info[i].name_field:SetText("")
+			self.contact_info[i].rank_field:SetText("")
+			self.contact_info[i].rank_label:SetText("")
+			self.contact_info[i].rept_field:SetText("")
+			self.contact_info[i].rept_label:SetText("")
+			self.contact_info[i].hint = ""
+		end
+	end
+	
+	-- Loop through all currently online stalkers.
+	local display_list = {}
+	local size_t = 0
+	local m_data = alife_storage_manager.get_state()
+	for i=1, #db.OnlineStalkers do
+		local npc = db.storage[db.OnlineStalkers[i]]
+		npc = npc and npc.object or level.object_by_id(db.OnlineStalkers[i])
+		if (npc and IsStalker(npc) and npc:alive()) then
+			-- Display stalkers who are within the PDA contact radius.
+			local distance = db.actor:position():distance_to_sqr(npc:position()) or 0
+			if (distance <= radius) then
+				if npc:relation(db.actor) ~= game_object.enemy then
+					if self.show_all:GetCheck() then
+						if (m_data.actor_contacts and m_data.actor_contacts[db.OnlineStalkers[i]]) then
+							size_t = size_t + 1
+							display_list[size_t] = npc
+						end
+					else
+						size_t = size_t + 1
+						display_list[size_t] = npc
+					end
+				end
+			end
+		end
+	end
+	
+	-- Special case for Sidorovich and Forester.
+	local function add_by_sid(sid)
+		local id = story_objects.object_id_by_story_id[sid]
+		if (id) then 
+			local npc = db.storage[id] and db.storage[id].object 
+			if (npc and db.actor:position():distance_to_sqr(npc:position()) <= radius) then 
+				display_list[#display_list+1] = npc
+			end
+		end
+	end
+	add_by_sid("esc_m_trader")
+	add_by_sid("red_tech_forester")
+	
+	-- Loop through all stalkers to display.
+	for index,stalker in ipairs(display_list) do
+		-- Retrieve required information.
+		local stalker_comm = stalker:character_community()
+		local stalker_icon = stalker:character_icon()
+		local stalker_name = stalker:character_name()
+		local stalker_rank = ranks.get_obj_rank_name(stalker)
+		local stalker_rept = utils_obj.get_reputation_name(stalker:character_reputation())
+		
+		stalker_icon = stalker_icon and stalker_icon ~= "" and stalker_icon or "ui\\ui_noise"
+		self.contact_info[index].icon_field:InitTexture(stalker_icon)
+		self.contact_info[index].icon_field:Show(true)
+		
+		local name = string.gsub(stalker_name, "Junior", "Jr.")
+		name = string.gsub(name, "Senior", "Sr.")
+		name = string.gsub(name, "Master ", "M.")
+		name = string.gsub(name, "Private", "Pvt.")
+		name = string.gsub(name, "Sergeant", "Sgt.")
+		name = string.gsub(name, "Lieutenant", "Lt.")
+		name = string.gsub(name, "Captain", "Cpt.")
+		name = string.len(name) <= 22 and name or string.sub(name, 0, 19) .. "..."
+		self.contact_info[index].name_field:SetText(name)
+		
+		self.contact_info[index].comm_label:SetText(game.translate_string("ui_st_community") .. ": ")
+		self.contact_info[index].rank_label:SetText(game.translate_string("ui_st_rank") .. ": ")
+		self.contact_info[index].rept_label:SetText(game.translate_string("ui_st_reputation") .. ": ")
+		
+		self.contact_info[index].comm_field:SetText(game.translate_string(stalker_comm))
+		self.contact_info[index].rank_field:SetText(game.translate_string("st_rank_" .. stalker_rank))
+		self.contact_info[index].rept_field:SetText(game.translate_string(stalker_rept))
+		
+		-- Display relation by colouring the stalker's faction name appropriately.
+		if (xr_conditions.is_factions_friends(nil, nil, { stalker_comm, character_community(db.actor) })) then
+			self.contact_info[index].comm_field:SetTextColor(self.clr_green)
+		elseif (xr_conditions.is_factions_enemies(nil, nil, { stalker_comm, character_community(db.actor) })) then
+			self.contact_info[index].comm_field:SetTextColor(self.clr_red)
+		else 
+			self.contact_info[index].comm_field:SetTextColor(self.clr_yellow)
+		end
+		
+		-- Display reputation status (whether it's good or bad) by colouring the text.
+		if (stalker:character_reputation() >= 500) then
+			self.contact_info[index].rept_field:SetTextColor(self.clr_green)
+		elseif (stalker:character_reputation() <= -500) then
+			self.contact_info[index].rept_field:SetTextColor(self.clr_red)
+		else
+			self.contact_info[index].rept_field:SetTextColor(self.clr_yellow)
+		end
+		
+		-- Hint
+		local se_stalker = alife_object(stalker:id())
+		local m_data = se_stalker and alife_storage_manager.get_se_obj_state(se_stalker)
+		if (m_data) then
+			local s_stalker, s_mutant, s_arte, s_wounded, s_corpse, s_sold
+			local state_str = [[
+			%c[255, 255, 160, 255]%c[default] %s \n
+			\n%c[255, 215, 215, 215]st_mm_pda_statistics:%c[default] \n
+			%c[255, 160, 160, 160]st_mm_pda_stalkers_killed:%c[default] %s \n
+			%c[255, 160, 160, 160]st_mm_pda_mutants_killed:%c[default] %s \n
+			%c[255, 160, 160, 160]st_mm_pda_artes_found:%c[default] %s \n
+			%c[255, 160, 160, 160]st_mm_pda_wounded_helped:%c[default] %s \n
+			%c[255, 160, 160, 160]st_mm_pda_corpse_looted:%c[default] %s \n
+			%c[255, 160, 160, 160]st_mm_pda_items_sold:%c[default] %s
+			]]	
+		
+			s_stalker = m_data["killed_stalkers"] or 0
+			s_mutant = m_data["killed_monsters"] or 0
+			s_arte = m_data["artefacts_found"] or 0
+			s_wounded = m_data["wounded_helped"] or 0
+			s_corpse = m_data["corpse_looted"] or 0
+			s_sold = m_data["items_sold"] or 0
+			
+			for s in string.gmatch(state_str,"(st_mm_pda_[%w%d_]*)") do
+				state_str = string.gsub(state_str,s,game.translate_string(s))
+			end
+	
+			state_str = strformat(state_str, stalker_name, s_stalker, s_mutant, s_arte, s_wounded, s_corpse, s_sold)
+			self.contact_info[index].hint = state_str
+		end
+	end
+
+	if can_reset_taskboard then
+		delay_next_reset()
+		reset_taskboard(self)
+	end
+end
+
+-----
+
+-- Row constructor.
+class "ui_contact_row" (CUIListBoxItem)
+function ui_contact_row:__init(parent, row, xml) super(parent, row, xml)
+	self:GetTextItem():SetText("")
+	self:SetWndSize(vector2():set(740, 140))
+
+	local index = 0
+	local is_widescreen = true --utils_xml.is_widescreen()
+	local offset_comm = is_widescreen and 36 or 49
+	local offset_rank = is_widescreen and 25 or 34
+	local offset_rept = is_widescreen and 51 or 68
+	local x = is_widescreen and 40 or 55
+
+	-- Five stalkers are listed on each row.
+	-- Create the components for each info slot.
+	for i = 1, column_limit do
+		-- Calculate the index for each entry.
+		index = i + (column_limit * (row - 1))
+
+		-- Create the components for each entry.
+		parent.contact_info[index] = {
+			["comm_field"] = self:AddTextField("", 1), 
+			["comm_label"] = self:AddTextField("", 1), 
+			["icon_field"] = self:AddIconField(1), 
+			["name_field"] = self:AddTextField("", 1), 
+			["rept_label"] = self:AddTextField("", 1), 
+			["rept_field"] = self:AddTextField("", 1), 
+			["rank_label"] = self:AddTextField("", 1), 
+			["rank_field"] = self:AddTextField("", 1), 
+			["hint"]       = ""
+		}
+		
+		parent.contact_info[index].icon_field:InitTexture("ui\\ui_noise")
+		parent.contact_info[index].icon_field:SetStretchTexture(true)
+		parent.contact_info[index].icon_field:SetWndSize(vector2():set(64, 64))
+		parent.contact_info[index].icon_field:SetWndPos(vector2():set(x, 0))
+		
+		parent.contact_info[index].name_field:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].name_field:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].name_field:SetWndPos(vector2():set(x, 65))
+		
+		parent.contact_info[index].rank_label:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].rank_label:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].rank_label:SetWndPos(vector2():set(x, 80))
+		
+		parent.contact_info[index].rank_field:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].rank_field:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].rank_field:SetWndPos(vector2():set(x + offset_rank, 80))
+		
+		parent.contact_info[index].rept_label:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].rept_label:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].rept_label:SetWndPos(vector2():set(x, 95))
+		
+		parent.contact_info[index].rept_field:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].rept_field:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].rept_field:SetWndPos(vector2():set(x + offset_rept, 95))
+		
+		parent.contact_info[index].comm_label:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].comm_label:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].comm_label:SetWndPos(vector2():set(x, 110))
+		
+		parent.contact_info[index].comm_field:SetFont(GetFontLetterica16Russian())
+		parent.contact_info[index].comm_field:SetWndSize(vector2():set(120, 20))
+		parent.contact_info[index].comm_field:SetWndPos(vector2():set(x + offset_comm, 110))
+		
+		x = x + (is_widescreen and 150 or 180)
+	end
+end
+
+
+------------------- TASKBOARD
+class "ui_taskboard_row" (CUIListBoxItem)
+function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
+	self:GetTextItem():SetText("")
+	self:SetWndSize(vector2():set(740, 140))
+
+	local is_widescreen = true --utils_xml.is_widescreen()
+	local offset_comm = is_widescreen and 36 or 49
+	local offset_rank = is_widescreen and 25 or 34
+	local offset_rept = is_widescreen and 51 or 68
+	-- Offset of stalker's portrait and captions
+	local x = is_widescreen and 40 or 55
+
+	-- Create the components for each entry.
+	parent.taskboard_info[row] = {
+		["comm_field"] = self:AddTextField("", 1), 
+		["comm_label"] = self:AddTextField("", 1), 
+		["icon_field"] = self:AddIconField(1), 
+		["name_field"] = self:AddTextField("", 1),
+		["task_icon_field"] = self:AddIconField(1), 
+		["task_title_field"] = self:AddTextField("", 1),
+		["task_details_field"] = self:AddTextField("", 1),
+		["task_full_description_field"] = self:AddTextField("", 1),
+		["task_accept_btn"] = xml:Init3tButton("btn_accept_task", self)
+	}
+
+	
+	parent:Register(parent.taskboard_info[row].task_accept_btn, "task_accept_btn_" .. row)
+	parent:AddCallback("task_accept_btn_" .. row, ui_events.BUTTON_CLICKED, accept_task_callback_factory(row), parent)
+	
+	parent.taskboard_info[row].icon_field:InitTexture("ui\\ui_noise")
+	parent.taskboard_info[row].icon_field:SetStretchTexture(true)
+	parent.taskboard_info[row].icon_field:SetWndSize(vector2():set(64, 64))
+	parent.taskboard_info[row].icon_field:SetWndPos(vector2():set(x, 0))
+	
+	parent.taskboard_info[row].name_field:SetFont(GetFontLetterica16Russian())
+	parent.taskboard_info[row].name_field:SetWndSize(vector2():set(120, 20))
+	parent.taskboard_info[row].name_field:SetWndPos(vector2():set(x, 65))
+	
+	parent.taskboard_info[row].comm_label:SetFont(GetFontLetterica16Russian())
+	parent.taskboard_info[row].comm_label:SetWndSize(vector2():set(120, 20))
+	parent.taskboard_info[row].comm_label:SetWndPos(vector2():set(x, 80))
+	
+	parent.taskboard_info[row].comm_field:SetFont(GetFontLetterica16Russian())
+	parent.taskboard_info[row].comm_field:SetWndSize(vector2():set(120, 20))
+	parent.taskboard_info[row].comm_field:SetWndPos(vector2():set(x + offset_comm, 80))
+
+	parent.taskboard_info[row].task_icon_field:InitTexture("ui\\ui_noise")
+	parent.taskboard_info[row].task_icon_field:SetStretchTexture(true)
+	parent.taskboard_info[row].task_icon_field:SetWndSize(vector2():set(83, 47))
+	parent.taskboard_info[row].task_icon_field:SetWndPos(vector2():set(140, 0))
+
+	parent.taskboard_info[row].task_title_field:SetFont(GetFontLetterica16Russian())
+	parent.taskboard_info[row].task_title_field:SetWndSize(vector2():set(180, 30))
+	parent.taskboard_info[row].task_title_field:SetWndPos(vector2():set(140, 60))
+	parent.taskboard_info[row].task_title_field:SetTextComplexMode(true)
+
+	parent.taskboard_info[row].task_details_field:SetFont(GetFontLetterica16Russian())
+	parent.taskboard_info[row].task_details_field:SetWndSize(vector2():set(180, 20))
+	parent.taskboard_info[row].task_details_field:SetWndPos(vector2():set(140, 100))
+	parent.taskboard_info[row].task_details_field:SetTextComplexMode(true)
+
+	parent.taskboard_info[row].task_full_description_field:SetFont(GetFontLetterica16Russian())
+	parent.taskboard_info[row].task_full_description_field:SetWndSize(vector2():set(380, 180))
+	parent.taskboard_info[row].task_full_description_field:SetWndPos(vector2():set(300, 0))
+	parent.taskboard_info[row].task_full_description_field:SetTextComplexMode(true)
+	parent.taskboard_info[row].task_full_description_field:SetVTextAlignment(true)
+
+	parent.taskboard_info[row].task_accept_btn:SetWndSize(vector2():set(60, 40))
+	parent.taskboard_info[row].task_accept_btn:SetWndPos(vector2():set(700, 0))
+end
+
+can_reset_taskboard = true
+flattened_task_details_list = {}
+function reset_taskboard(pda_tab) 
+	local radius = 50 -- TODO: remove - was required for some testing
+	-- Erase all pre-existing information.
+	for i = 1, row_limit do
+		if (pda_tab.taskboard_info[i]) then
+			pda_tab.taskboard_info[i].comm_field:SetText("")
+			pda_tab.taskboard_info[i].comm_label:SetText("")
+			pda_tab.taskboard_info[i].icon_field:Show(false)
+			pda_tab.taskboard_info[i].name_field:SetText("")
+
+			pda_tab.taskboard_info[i].task_icon_field:Show(false)
+			pda_tab.taskboard_info[i].task_title_field:SetText("")
+			pda_tab.taskboard_info[i].task_details_field:SetText("")
+			pda_tab.taskboard_info[i].task_accept_btn:Show(false)
+		end
+	end
+	
+	-- Loop through all currently online stalkers.
+	local display_list = {}
+	level.iterate_nearest(db.actor:position(), radius, function (obj)
+		if IsStalker(obj) and obj:alive() and obj:relation(db.actor) ~= game_object.enemy then
+			table.insert(display_list, obj)
+		end
+	end)
+	
+	-- Special case for Sidorovich and Forester.
+	local function add_by_sid(sid)
+		local id = story_objects.object_id_by_story_id[sid]
+		if (id) then 
+			local npc = db.storage[id] and db.storage[id].object 
+			if (npc and db.actor:position():distance_to_sqr(npc:position()) <= radius) then 
+				table.insert(display_list, npc)
+			end
+		end
+	end
+	add_by_sid("esc_m_trader")
+	add_by_sid("red_tech_forester")
+
+	-- Tell task manager to generate available tasks
+	for _,stalker in pairs(display_list) do 
+		-- Sim npcs are random roaming stalkers. Non sims are traders, mechanics, etc.
+		local is_sim = string.find(stalker:section(), "sim_")
+		axr_task_manager.generate_available_tasks(stalker, is_sim)
+	end
+	-- Get flattened table (some NPCs might have several tasks)
+	-- key: int, value: {npc_id: int, task_section: string}
+	local task_list = {}
+	for npc_id, npc_task_table in pairs(axr_task_manager.available_tasks) do
+		for _, task_section in pairs(npc_task_table) do
+			table.insert(task_list, {
+				npc_id = npc_id,
+				task_section = task_section
+			})
+		end
+	end
+	
+	-- Let task manager prepare all the logic required for tasks
+	for _, v in pairs(task_list) do 
+		prepare_tasks( v.npc_id, v.task_section )
+		table.insert(flattened_task_details_list, {
+			task_description = game.translate_string(axr_task_manager.get_task_job_description( v.task_section )),
+			npc_id = v.npc_id,
+			task_id = v.task_section
+		})
+	end
+	
+	CreateTimeEvent("taskboard_delay_render", "taskboard_delay_render", 0.5, function ()
+		-- Generate taskboard entries
+		for i,details in ipairs(flattened_task_details_list) do
+			local stalker = level.object_by_id(details.npc_id)
+			-- Retrieve required information.
+			local stalker_comm = stalker:character_community()
+			local stalker_icon = stalker:character_icon()
+			local stalker_name = stalker:character_name()
+			
+			stalker_icon = stalker_icon and stalker_icon ~= "" and stalker_icon or "ui\\ui_noise"
+			pda_tab.taskboard_info[i].icon_field:InitTexture(stalker_icon)
+			pda_tab.taskboard_info[i].icon_field:Show(true)
+			
+			local name = string.gsub(stalker_name, "Junior", "Jr.")
+			name = string.gsub(name, "Senior", "Sr.")
+			name = string.gsub(name, "Master ", "M.")
+			name = string.gsub(name, "Private", "Pvt.")
+			name = string.gsub(name, "Sergeant", "Sgt.")
+			name = string.gsub(name, "Lieutenant", "Lt.")
+			name = string.gsub(name, "Captain", "Cpt.")
+			name = string.len(name) <= 22 and name or string.sub(name, 0, 19) .. "..."
+			pda_tab.taskboard_info[i].name_field:SetText(name)
+			
+			pda_tab.taskboard_info[i].comm_label:SetText(game.translate_string("ui_st_community") .. ": ")
+			pda_tab.taskboard_info[i].comm_field:SetText(game.translate_string(stalker_comm))
+			
+			-- Display relation by colouring the stalker's faction name appropriately.
+			if (xr_conditions.is_factions_friends(nil, nil, { stalker_comm, character_community(db.actor) })) then
+				pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_green)
+			elseif (xr_conditions.is_factions_enemies(nil, nil, { stalker_comm, character_community(db.actor) })) then
+				pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_red)
+			else 
+				pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_yellow)
+			end
+
+			local more_task_details = z_taskboard_overrides.tasks_info[i] or {}
+			pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon)
+			pda_tab.taskboard_info[i].task_icon_field:Show(true)
+			pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title)
+			pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details)
+			pda_tab.taskboard_info[i].task_full_description_field:SetText(details.task_description)
+			pda_tab.taskboard_info[i].task_accept_btn:Show(true)
+		end
+
+		return true
+	end)
+end
+
+currently_processed_npc_id = nil
+function prepare_tasks(npc_id, task_id) 
+	currently_processed_npc_id = npc_id
+	printf(task_id)
+	local on_job_descr = task_id and task_manager.task_ini:r_string_ex(task_id,"on_job_descr")
+	if (on_job_descr) then 
+		local cond = xr_logic.parse_condlist(db.actor,"task_manager","condlist",on_job_descr)
+		if (cond) then 
+			xr_logic.pick_section_from_condlist(db.actor,db.actor,cond)
+		end
+	end
+	
+	local fetch = task_id and task_manager.task_ini:r_string_ex(task_id,"fetch_descr")
+	if (fetch) then
+		axr_task_manager.trigger_fetch_func(task_id)
+		return strformat(game.translate_string(fetch),_FETCH_TEXT or "")
+	end
+
+	return game.translate_string(task_id and task_manager.task_ini:r_string_ex(task_id,"job_descr") or "st_no_available_task")
+end
+
+local reset_delay = 300
+function delay_next_reset()
+	can_reset_taskboard = false
+	CreateTimeEvent("taskboard_reset_delay", "taskboard_reset_delay", reset_delay, function () 
+		can_reset_taskboard = true
+		-- Reset collected tasks info
+		z_taskboard_overrides.tasks_info = {}
+		flattened_task_details_list = {}
+		return true
+	end)
+end
+
+function accept_task(row_index)
+	local task_details = flattened_task_details_list[row_index]
+	task_manager.get_task_manager():give_task(task_details.task_id, task_details.npc_id)
+end
+
+function accept_task_callback_factory(row_index)
+	return function() 
+		accept_task(row_index)
+	end
+end
+

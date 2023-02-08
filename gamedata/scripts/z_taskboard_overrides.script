@@ -1,0 +1,22 @@
+tasks_info = {}
+function create_overrides() 
+    local original_func = db.actor.give_talk_message2
+    db.actor.give_talk_message2 = function (...)
+        if ActorMenu.get_pda_menu():IsShown() then
+            local _, task_title, task_details, task_icon = ...
+            table.insert(tasks_info, {
+                task_title = task_title,
+                task_details = task_details,
+                task_icon = task_icon
+            })
+        else
+            original_func(...)
+        end
+
+    end
+end
+
+function on_game_start()
+	RegisterScriptCallback("on_game_load", create_overrides)
+end
+
