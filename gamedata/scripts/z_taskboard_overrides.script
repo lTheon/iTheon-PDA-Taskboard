@@ -2,6 +2,7 @@ tasks_info = {}
 function create_overrides() 
     local original_func = db.actor.give_talk_message2
     db.actor.give_talk_message2 = function (...)
+        printf(ActorMenu.get_pda_menu():IsShown())
         if ActorMenu.get_pda_menu():IsShown() then
             local _, task_title, task_details, task_icon = ...
             table.insert(tasks_info, {
@@ -14,6 +15,10 @@ function create_overrides()
         end
 
     end
+end
+
+function clear_tasks_info() 
+    tasks_info = {}
 end
 
 function on_game_start()
