@@ -361,6 +361,7 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 	parent.taskboard_info[row].icon_field:SetStretchTexture(true)
 	parent.taskboard_info[row].icon_field:SetWndSize(vector2():set(64, 64))
 	parent.taskboard_info[row].icon_field:SetWndPos(vector2():set(x, 0))
+	parent.taskboard_info[row].icon_field:Show(false)
 	
 	parent.taskboard_info[row].name_field:SetFont(GetFontLetterica16Russian())
 	parent.taskboard_info[row].name_field:SetWndSize(vector2():set(120, 20))
@@ -378,6 +379,7 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 	parent.taskboard_info[row].task_icon_field:SetStretchTexture(true)
 	parent.taskboard_info[row].task_icon_field:SetWndSize(vector2():set(83, 47))
 	parent.taskboard_info[row].task_icon_field:SetWndPos(vector2():set(140, 0))
+	parent.taskboard_info[row].task_icon_field:Show(false)
 
 	parent.taskboard_info[row].task_title_field:SetFont(GetFontLetterica16Russian())
 	parent.taskboard_info[row].task_title_field:SetWndSize(vector2():set(180, 30))
@@ -397,9 +399,11 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 
 	parent.taskboard_info[row].task_accept_btn:SetWndSize(vector2():set(60, 40))
 	parent.taskboard_info[row].task_accept_btn:SetWndPos(vector2():set(700, 0))
+	parent.taskboard_info[row].task_accept_btn:Show(false)
 
 	parent.taskboard_info[row].task_next_btn:SetWndSize(vector2():set(60, 40))
 	parent.taskboard_info[row].task_next_btn:SetWndPos(vector2():set(700, 80))
+	parent.taskboard_info[row].task_next_btn:Show(false)
 end
 
 local prepared_tasks_data = {}
@@ -413,7 +417,7 @@ function reset_taskboard(pda_tab)
 	-- Basically let XRay do its stuff with setting up logic
 	for task_functor, filtered_task_list in pairs(prepared_tasks_data) do 
 		local task_data = filtered_task_list[1]
-		prepare_tasks( task_data.npc_id, task_data.task_id )
+		prepare_task( task_data.npc_id, task_data.task_id )
 	end
 	
 	-- Delay required for task details from actor message to be properly collected
@@ -433,8 +437,8 @@ function reset_taskboard(pda_tab)
 	end)
 end
 
-currently_processed_npc_id = nil
-function prepare_tasks(npc_id, task_id) 
+currently_processed_npc_id = nil -- required for fetch quest override
+function prepare_task(npc_id, task_id) 
 	currently_processed_npc_id = npc_id
 	local on_job_descr = task_id and task_manager.task_ini:r_string_ex(task_id,"on_job_descr")
 	if (on_job_descr) then 
@@ -478,11 +482,11 @@ function next_task_in_category(pda_tab, row_index)
 	local next_task = prepared_tasks_data[entry_info.task_functor][entry_info.current_index + 1]
 	-- To do: add condition for the button to not show at all
 	if next_task then
-		prepare_tasks( next_task.npc_id, next_task.task_id )
+		prepare_task( next_task.npc_id, next_task.task_id )
 
 		CreateTimeEvent("next_task_delay", "next_task_delay", 0.5, function () 
-			update_task_entry(pda_tab, row_index, next_task)
 			entry_info.current_index = entry_info.current_index + 1
+			update_task_entry(pda_tab, row_index, next_task)
 			return true
 		end)
 	end
@@ -551,6 +555,8 @@ function trigger_generate_available_tasks(npc_list)
 	end
 end
 
+-- These tasks break scripts in one way or another if not initiated from dialog window
+local excluded_functors = {"general_delivery", "task_targets_lostzone_all"}
 function get_prepared_task_data(npc_list) 
 	-- Split available tasks into categories based on their target functor
 	local result = {}
@@ -558,14 +564,16 @@ function get_prepared_task_data(npc_list)
 		local stalker_task_list = axr_task_manager.available_tasks[stalker:id()] or {}
 		for _, task_id in pairs(stalker_task_list) do
 			local task_target_functor = task_manager.task_ini:r_string_ex(task_id,"target_functor")
-			if not result[task_target_functor] then
-				result[task_target_functor] = {}
+			if not has_value(excluded_functors, task_target_functor) then
+				if not result[task_target_functor] then
+					result[task_target_functor] = {}
+				end
+				table.insert(result[task_target_functor], {
+					npc_id = stalker:id(),
+					task_id = task_id,
+					task_description = game.translate_string(axr_task_manager.get_task_job_description( task_id )),
+				})
 			end
-			table.insert(result[task_target_functor], {
-				npc_id = stalker:id(),
-				task_id = task_id,
-				task_description = game.translate_string(axr_task_manager.get_task_job_description( task_id )),
-			})
 		end
 	end
 	return result
@@ -604,12 +612,45 @@ function update_task_entry(pda_tab, i, task_details)
 		pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_yellow)
 	end
 
-	local more_task_details = z_taskboard_overrides.tasks_info[i] or {}
+	local more_task_details = get_more_task_details(i) or {}
 	pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon)
 	pda_tab.taskboard_info[i].task_icon_field:Show(true)
 	pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title)
 	pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details)
 	pda_tab.taskboard_info[i].task_full_description_field:SetText(task_details.task_description)
 	pda_tab.taskboard_info[i].task_accept_btn:Show(true)
-	pda_tab.taskboard_info[i].task_next_btn:Show(true)
+	pda_tab.taskboard_info[i].task_next_btn:Show(has_more_task_in_category(i))
+end
+
+function has_more_task_in_category(i) 
+	local entry_info = current_board_state[i]
+	local next_task = prepared_tasks_data[entry_info.task_functor][entry_info.current_index + 1]
+	-- To do: add condition for the button to not show at all
+	return not not next_task
+end
+
+-- This function is a pure fuckery and crime against the code, but there's literally no other way to couple the
+-- task data with the details received through overridden actor method. The only way would be through matching 
+-- titles, but reading from ini for some reason causes busy hands/script freeze (same as with rendering several tasks of the same type
+-- at the same time). It works though, so...
+function get_more_task_details(i)
+	local entry_info = current_board_state[i]
+	if entry_info.current_index == 1 then
+		-- If no new task has been requested for a given category, index of details will be the same as the index of row (or at least I didn't observe any
+		-- deviations from that rule for now)
+		return z_taskboard_overrides.tasks_info[i]
+	else
+		-- If new task has been requested, the details will be appended at the end of the array, so we can easily read them
+		return z_taskboard_overrides.tasks_info[#z_taskboard_overrides.tasks_info]
+	end
+end
+
+function has_value (tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
 end

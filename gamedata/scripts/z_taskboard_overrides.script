@@ -1,6 +1,6 @@
 tasks_info = {}
 function create_overrides() 
-    local original_func = db.actor.give_talk_message2
+    local original_give_talk_message2 = db.actor.give_talk_message2
     db.actor.give_talk_message2 = function (...)
         printf(ActorMenu.get_pda_menu():IsShown())
         if ActorMenu.get_pda_menu():IsShown() then
@@ -11,7 +11,7 @@ function create_overrides()
                 task_icon = task_icon
             })
         else
-            original_func(...)
+            original_give_talk_message2(...)
         end
 
     end
