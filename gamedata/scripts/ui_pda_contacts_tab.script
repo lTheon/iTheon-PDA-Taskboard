@@ -422,7 +422,7 @@ function reset_taskboard(pda_tab)
 	end
 	
 	-- Delay required for task details from actor message to be properly collected
-	CreateTimeEvent("taskboard_delay_render", "taskboard_delay_render", 0.5, function ()
+	CreateTimeEvent("taskboard_delay_render", "taskboard_delay_render", 0.05, function ()
 		-- Generate taskboard entries
 		local i = 1
 		for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
@@ -486,7 +486,7 @@ function next_task_in_category(pda_tab, row_index)
 	if next_task then
 		prepare_task( next_task.npc_id, next_task.task_id )
 
-		CreateTimeEvent("next_task_delay", "next_task_delay", 0.5, function () 
+		CreateTimeEvent("next_task_delay", "next_task_delay", 0.05, function () 
 			entry_info.current_index = entry_info.current_index + 1
 			update_task_entry(pda_tab, row_index, next_task)
 			return true
@@ -666,10 +666,12 @@ function has_value (tab, val)
 end
 
 function normalize_task_effect(task_effect) 
-	-- Some effects have weird names even though they perform pretty much the same actions as the generic effects
+	-- Some effects have different names even though they perform pretty much the same actions as the generic/simulation task effects
 	-- Those should be pushed into the same category to prevent script freeze/busy hands
 	local normalizer = {
-		setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task"
+		setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task",
+		setup_generic_fetch_task = "setup_fetch_task",
+		drx_sl_create_quest_stash = "setup_fetch_task" -- unsure
 	}
 	return normalizer[task_effect] or task_effect
 end
