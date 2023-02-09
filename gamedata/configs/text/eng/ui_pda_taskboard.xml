@@ -3,4 +3,10 @@
 	<string id="st_pda_accept_task">
 		<text>Accept task</text>
 	</string>
+	<string id="st_pda_refresh_tasks">
+		<text>Refresh tasks</text>
+	</string>
+	<string id="st_pda_next_task">
+		<text>Next task</text>
+	</string>
 </string_table>
