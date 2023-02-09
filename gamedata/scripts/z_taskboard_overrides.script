@@ -18,7 +18,6 @@ function create_overrides()
 
     local original_GetTalkingNpc = mob_trade.GetTalkingNpc
     mob_trade.GetTalkingNpc = function (...) 
-        printf("currently processed npc - %s", ui_pda_contacts_tab.currently_processed_npc_id)
         if ui_pda_contacts_tab.currently_processed_npc_id then
             return level.object_by_id(ui_pda_contacts_tab.currently_processed_npc_id)
         else

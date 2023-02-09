@@ -201,7 +201,7 @@ end
 function next_task_in_category(pda_tab, row_index)
 	local entry_info = current_board_state[row_index]
 	local next_task = prepared_tasks_data[entry_info.task_effect][entry_info.current_index + 1]
-	-- To do: add condition for the button to not show at all
+	
 	if next_task then
 		prepare_task( next_task.npc_id, next_task.task_id )
 
@@ -282,7 +282,7 @@ function trigger_generate_available_tasks(npc_list)
 end
 
 -- These tasks fire additional scripts that break the other script execution
-local excluded_effects = {"rest", "script"}
+local excluded_effects = {"script"}
 function get_prepared_task_data(npc_list) 
 	-- Split available tasks into categories based on their init effect
 	local result = {}
@@ -341,11 +341,11 @@ function update_task_entry(pda_tab, i, task_details)
 	end
 
 	local more_task_details = get_more_task_details(i) or {}
-	pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon)
+	pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
 	pda_tab.taskboard_info[i].task_icon_field:Show(true)
-	pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title)
-	pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details)
-	pda_tab.taskboard_info[i].task_full_description_field:SetText(task_details.task_description)
+	pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title or "")
+	pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details or "")
+	pda_tab.taskboard_info[i].task_full_description_field:SetText(task_details.task_description or "")
 	pda_tab.taskboard_info[i].task_accept_btn:Show(true)
 	pda_tab.taskboard_info[i].task_next_btn:Show(has_more_task_in_category(i))
 end
