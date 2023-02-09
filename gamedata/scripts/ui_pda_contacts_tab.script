@@ -176,7 +176,6 @@ function prepare_task(npc_id, task_id)
 	end
 
 	currently_processed_npc_id = nil
-	return game.translate_string(task_id and task_manager.task_ini:r_string_ex(task_id,"job_descr") or "st_no_available_task")
 end
 
 function accept_task_callback_factory(pda_tab, row_index)
@@ -227,8 +226,6 @@ function clear_cached_data()
 	current_board_state = {}
 end
 
-
-------------
 function clear_taskboard_ui(pda_tab) 
 	-- Erase all pre-existing information.
 	for i = 1, row_limit do
@@ -257,6 +254,7 @@ function get_nearby_npcs()
 		end
 	end)
 	
+	-- To do: check if those two actually work
 	-- Special case for Sidorovich and Forester.
 	local function add_by_sid(sid)
 		local id = story_objects.object_id_by_story_id[sid]
@@ -283,8 +281,8 @@ function trigger_generate_available_tasks(npc_list)
 	end
 end
 
--- These tasks fire additional scripts that might interfere with generic tasks - I'll need to find a way to process them separately
-local excluded_effects = {"script"}
+-- These tasks fire additional scripts that break the other script execution
+local excluded_effects = {"rest", "script"}
 function get_prepared_task_data(npc_list) 
 	-- Split available tasks into categories based on their init effect
 	local result = {}
