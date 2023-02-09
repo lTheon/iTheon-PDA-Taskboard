@@ -417,6 +417,7 @@ function reset_taskboard(pda_tab)
 	-- Basically let XRay do its stuff with setting up logic
 	for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
 		local task_data = filtered_task_list[1]
+		printf("%s ..... %s", task_data.task_id, task_effect)
 		prepare_task( task_data.npc_id, task_data.task_id )
 	end
 	
@@ -572,6 +573,7 @@ function get_prepared_task_data(npc_list)
 		for _, task_id in pairs(stalker_task_list) do
 			local raw_task_effect = task_manager.task_ini:r_string_ex(task_id,"on_job_descr") or task_manager.task_ini:r_string_ex(task_id,"fetch_func")
 			local task_effect = string.gmatch(raw_task_effect or "", "=(.*)%(")() or "rest"
+			task_effect = normalize_task_effect(task_effect)
 			if not has_value(excluded_effects, task_effect) then
 				if not result[task_effect] then
 					result[task_effect] = {}
@@ -661,4 +663,13 @@ function has_value (tab, val)
     end
 
     return false
+end
+
+function normalize_task_effect(task_effect) 
+	-- Some effects have weird names even though they perform pretty much the same actions as the generic effects
+	-- Those should be pushed into the same category to prevent script freeze/busy hands
+	local normalizer = {
+		setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task"
+	}
+	return normalizer[task_effect] or task_effect
 end
