@@ -12,17 +12,17 @@
 
 	<btn_accept_task width="24" height="30" stretch="1">
 		<texture>ui_inGame2_pda_Filtr_arrow_right</texture>
-		<text font="letterica16" r="170" g="170" b="170">st_pda_accept_task</text>
+		<text x="30" font="letterica16" r="170" g="170" b="170">st_pda_accept_task</text>
 	</btn_accept_task>
 
 	<btn_next_task width="24" height="30" stretch="1">
 		<texture>ui_inGame2_pda_Filtr_arrow_right</texture>
-		<text font="letterica16" r="170" g="170" b="170">st_pda_next_task</text>
+		<text x="30" font="letterica16" r="170" g="170" b="170">st_pda_next_task</text>
 	</btn_next_task>
 
-	<btn_refresh_tasks x="660" y="100" width="24" height="30" stretch="1">
+	<btn_refresh_tasks x="600" y="94" width="24" height="30" stretch="1">
 		<texture>ui_inGame2_pda_Filtr_arrow_right</texture>
-		<text font="letterica16" r="170" g="170" b="170">st_pda_refresh_tasks</text>
+		<text x="60" font="letterica16" r="170" g="170" b="170">st_pda_refresh_tasks</text>
 	</btn_refresh_tasks>
 </w>
 

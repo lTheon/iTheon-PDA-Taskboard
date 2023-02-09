@@ -113,16 +113,16 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 
 	parent.taskboard_info[row].task_full_description_field:SetFont(GetFontLetterica16Russian())
 	parent.taskboard_info[row].task_full_description_field:SetWndSize(vector2():set(380, 180))
-	parent.taskboard_info[row].task_full_description_field:SetWndPos(vector2():set(300, 0))
+	parent.taskboard_info[row].task_full_description_field:SetWndPos(vector2():set(230, 0))
 	parent.taskboard_info[row].task_full_description_field:SetTextComplexMode(true)
 	parent.taskboard_info[row].task_full_description_field:SetVTextAlignment(true)
 
 	parent.taskboard_info[row].task_accept_btn:SetWndSize(vector2():set(60, 40))
-	parent.taskboard_info[row].task_accept_btn:SetWndPos(vector2():set(700, 0))
+	parent.taskboard_info[row].task_accept_btn:SetWndPos(vector2():set(630, 0))
 	parent.taskboard_info[row].task_accept_btn:Show(false)
 
 	parent.taskboard_info[row].task_next_btn:SetWndSize(vector2():set(60, 40))
-	parent.taskboard_info[row].task_next_btn:SetWndPos(vector2():set(700, 80))
+	parent.taskboard_info[row].task_next_btn:SetWndPos(vector2():set(630, 40))
 	parent.taskboard_info[row].task_next_btn:Show(false)
 end
 
