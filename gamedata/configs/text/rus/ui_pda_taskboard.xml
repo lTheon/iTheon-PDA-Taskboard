@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <string_table>
 	<string id="st_pda_accept_task">
-		<text>Accept task</text>
+		<text>Принять</text>
 	</string>
 	<string id="st_pda_refresh_tasks">
-		<text>Refresh tasks</text>
+		<text>Обновить</text>
 	</string>
 	<string id="st_pda_next_task">
-		<text>Next task</text>
+		<text>Следующее</text>
 	</string>
 </string_table>
