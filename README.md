@@ -1,4 +1,4 @@
-# iTheon-PDA-Taskboard v0.1.0
+# iTheon-PDA-Taskboard v0.1.1
 
 This mod changes the Contacts tab of PDA into a taskboard where you can accept all the dynamic tasks remotely
 I've performed a lot of tests (mainly in Rostok and DV), but I can never be sure whether I didn't miss some edge cases, so I'm releasing it for public testing for the players now.
@@ -8,8 +8,6 @@ On Contacts tab there's a Refresh tasks button - click it once and wait for the 
 You'll get a list of tasks split into categories. Next to the task description you will see two buttons - these require double click for some reason (I'll work on changing that). Accept task - self-explanatory - accepting a task automatically refreshes the board, as some tasks automatically remove others from the available list (vanilla Anomaly stuff). Next task - tells PDA to prepare info about the next task in category.
 
 To dos: <br>
-make scanning radius configurable (it's 100m right now) <br>
-visual lifting (maybe) <br>
 fix double click required for Accept task and Next task buttons - no idea where it comes from for now
 
 
@@ -19,3 +17,12 @@ A: Some "get mutant parts" tasks have messed up descriptions in PDA - this is no
 
 Q: Why you didn't make one full board of tasks? <br>
 A: Engine limitation. I've tried doing it in several different ways, but there needs to be a delay between fetching detailed info about tasks of similar type. With no delay, specific info about the task (e. g. target name and location) will not load properly. You could accept such a task, but you wouldn't know who exactly you have to kill and where he is before you accept it. With full list - even when I've set certain delays to 10 seconds - it sometimes happened anyway. With split list, there doesn't need to be any delay.
+
+Changelog:
+
+v0.1.1
+
+- Fix Sidor and Forester distance evaluation<br>
+- Introduce delay for refreshing the tasks<br>
+- Visual tweaks<br>
+- Add mcm config
