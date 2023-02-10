@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>	
+	<string id="ui_mcm_menu_pda_taskboard">
+		<text>PDA Taskboard</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_banner">
+		<text>PDA Taskboard</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_scanning_range">
+		<text>Scanning range</text>
+	</string>
+</string_table>
