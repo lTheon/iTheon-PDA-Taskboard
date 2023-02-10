@@ -1,8 +1,7 @@
 tasks_info = {}
-function create_overrides() 
+function create_overrides()
     local original_give_talk_message2 = db.actor.give_talk_message2
     db.actor.give_talk_message2 = function (...)
-        printf(ActorMenu.get_pda_menu():IsShown())
         if ActorMenu.get_pda_menu():IsShown() then
             local _, task_title, task_details, task_icon = ...
             table.insert(tasks_info, {
@@ -17,17 +16,39 @@ function create_overrides()
     end
 
     local original_GetTalkingNpc = mob_trade.GetTalkingNpc
-    mob_trade.GetTalkingNpc = function (...) 
+    mob_trade.GetTalkingNpc = function (...)
         if ui_pda_contacts_tab.currently_processed_npc_id then
             return level.object_by_id(ui_pda_contacts_tab.currently_processed_npc_id)
         else
             return original_GetTalkingNpc(...)
         end
     end
+
+    local original_is_talking = db.actor.is_talking
+    db.actor.is_talking = function (...)
+        if ui_pda_contacts_tab.currently_processed_npc_id then
+            return true
+        else
+            return original_is_talking(...)
+        end
+    end
+
+    local original_get_speaker = _G.get_speaker
+    _G.get_speaker = function (...)
+        if ui_pda_contacts_tab.currently_processed_npc_id then
+            return level.object_by_id(ui_pda_contacts_tab.currently_processed_npc_id)
+        else
+            return original_get_speaker(...)
+        end
+    end
 end
 
-function clear_tasks_info() 
+function clear_tasks_info()
     tasks_info = {}
+end
+
+function push_task_info(task_info)
+    table.insert(tasks_info, task_info)
 end
 
 function on_game_start()

@@ -27,7 +27,6 @@ function pda_contacts_tab:InitControls()
 	xml:InitFrame("frame1", self)
 	xml:InitFrame("frame2", self)
 
-	-- To do: visual tweaks
 	-- Refresh tasks button
 	self.refresh_tasks_btn = xml:Init3tButton("btn_refresh_tasks", self)
 	self:Register(self.refresh_tasks_btn, "refresh_tasks_btn")
@@ -137,7 +136,6 @@ function reset_taskboard(pda_tab)
 	-- Basically let XRay do its stuff with setting up logic
 	for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
 		local task_data = filtered_task_list[1]
-		printf("%s ..... %s", task_data.task_id, task_effect)
 		prepare_task( task_data.npc_id, task_data.task_id )
 	end
 	
@@ -246,7 +244,7 @@ function clear_taskboard_ui(pda_tab)
 end
 
 function get_nearby_npcs() 
-	local radius = 50
+	local radius = 100
 	local npc_list = {}
 	level.iterate_nearest(db.actor:position(), radius, function (obj)
 		if IsStalker(obj) and obj:alive() and obj:relation(db.actor) ~= game_object.enemy then
@@ -357,16 +355,20 @@ function has_more_task_in_category(i)
 	return not not next_task
 end
 
+local processed_tasks_with_no_info = 0
 -- This function is a pure fuckery and crime against the code, but there's literally no other way to couple the
--- task data with the details received through overridden actor method. The only way would be through matching 
--- titles, but reading from ini for some reason causes busy hands/script freeze (same as with rendering several tasks of the same type
--- at the same time). It works though, so...
+-- task data with the details received through overridden actor method.
 function get_more_task_details(i)
 	local entry_info = current_board_state[i]
 	if entry_info.current_index == 1 then
 		-- If no new task has been requested for a given category, index of details will be the same as the index of row (or at least I didn't observe any
 		-- deviations from that rule for now)
-		return z_taskboard_overrides.tasks_info[i]
+		if(entry_info.task_effect ~= "rest") then
+			return z_taskboard_overrides.tasks_info[i - processed_tasks_with_no_info]
+		else 
+			-- Some tasks do not have detailed info - this has to be taken into consideration when fetching info for them and for the next tasks
+			processed_tasks_with_no_info = processed_tasks_with_no_info + 1
+		end
 	else
 		-- If new task has been requested, the details will be appended at the end of the array, so we can easily read them
 		return z_taskboard_overrides.tasks_info[#z_taskboard_overrides.tasks_info]
@@ -385,11 +387,11 @@ end
 
 function normalize_task_effect(task_effect) 
 	-- Some effects have different names even though they perform pretty much the same actions as the generic/simulation task effects
-	-- Those should be pushed into the same category to prevent script freeze/busy hands
+	-- Those should be pushed into the same category to prevent queued actor messages from being discarded
 	local normalizer = {
 		setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task",
 		setup_generic_fetch_task = "setup_fetch_task",
-		drx_sl_create_quest_stash = "setup_fetch_task" -- unsure
+		drx_sl_create_quest_stash = "setup_fetch_task"
 	}
 	return normalizer[task_effect] or task_effect
 end
