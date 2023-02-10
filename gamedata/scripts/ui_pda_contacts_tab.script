@@ -247,7 +247,7 @@ function clear_taskboard_ui(pda_tab)
 end
 
 function get_nearby_npcs() 
-	local radius = 100
+	local radius = config.scanning_range
 	local npc_list = {}
 	level.iterate_nearest(db.actor:position(), radius, function (obj)
 		if IsStalker(obj) and obj:alive() and obj:relation(db.actor) ~= game_object.enemy then
@@ -399,4 +399,31 @@ function normalize_task_effect(task_effect)
 		drx_sl_create_quest_stash = "setup_fetch_task"
 	}
 	return normalizer[task_effect] or task_effect
+end
+
+local function load_defaults()
+	local t = {}
+	local op = pda_taskboard_mcm.op
+	for i, v in ipairs(op.gr) do
+		if v.def ~= nil then
+			t[v.id] = v.def
+		end
+	end
+	return t
+end
+-- Default config
+config = load_defaults()
+
+local function load_settings()
+	config = load_defaults()
+	if ui_mcm then
+		for k, v in pairs(config) do
+			config[k] = ui_mcm.get("pda_taskboard/" .. k)
+		end
+	end
+end
+
+function on_game_start()
+	RegisterScriptCallback("on_game_load", load_settings)
+	RegisterScriptCallback("on_option_change", load_settings)
 end
