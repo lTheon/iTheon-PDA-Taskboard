@@ -5,6 +5,8 @@ function create_overrides()
         printf(ActorMenu.get_pda_menu():IsShown())
         if ActorMenu.get_pda_menu():IsShown() then
             local _, task_title, task_details, task_icon = ...
+            printf(task_title)
+            printf(task_icon)
             table.insert(tasks_info, {
                 task_title = task_title,
                 task_details = task_details,
@@ -28,6 +30,10 @@ end
 
 function clear_tasks_info() 
     tasks_info = {}
+end
+
+function push_empty_table() 
+    table.insert(tasks_info, {})
 end
 
 function on_game_start()

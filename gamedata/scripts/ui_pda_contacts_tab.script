@@ -66,16 +66,12 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 		["task_title_field"] = self:AddTextField("", 1),
 		["task_details_field"] = self:AddTextField("", 1),
 		["task_full_description_field"] = self:AddTextField("", 1),
-		["task_accept_btn"] = xml:Init3tButton("btn_accept_task", self),
-		["task_next_btn"] = xml:Init3tButton("btn_next_task", self)
+		["task_accept_btn"] = xml:Init3tButton("btn_accept_task", self)
 	}
 
 	
 	parent:Register(parent.taskboard_info[row].task_accept_btn, "task_accept_btn_" .. row)
 	parent:AddCallback("task_accept_btn_" .. row, ui_events.BUTTON_CLICKED, accept_task_callback_factory(parent, row), parent)
-
-	parent:Register(parent.taskboard_info[row].task_next_btn, "task_next_btn_" .. row)
-	parent:AddCallback("task_next_btn_" .. row, ui_events.BUTTON_CLICKED, next_task_in_category_callback_factory(parent, row), parent)
 	
 	parent.taskboard_info[row].icon_field:InitTexture("ui\\ui_noise")
 	parent.taskboard_info[row].icon_field:SetStretchTexture(true)
@@ -120,14 +116,9 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 	parent.taskboard_info[row].task_accept_btn:SetWndSize(vector2():set(60, 40))
 	parent.taskboard_info[row].task_accept_btn:SetWndPos(vector2():set(630, 0))
 	parent.taskboard_info[row].task_accept_btn:Show(false)
-
-	parent.taskboard_info[row].task_next_btn:SetWndSize(vector2():set(60, 40))
-	parent.taskboard_info[row].task_next_btn:SetWndPos(vector2():set(630, 40))
-	parent.taskboard_info[row].task_next_btn:Show(false)
 end
 
 local prepared_tasks_data = {}
-local current_board_state = {}
 function reset_taskboard(pda_tab) 
 	clear_taskboard_ui(pda_tab)
 	local npc_list = get_nearby_npcs()
@@ -135,25 +126,72 @@ function reset_taskboard(pda_tab)
 	prepared_tasks_data = get_prepared_task_data(npc_list)
 
 	-- Basically let XRay do its stuff with setting up logic
-	for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
-		local task_data = filtered_task_list[1]
-		printf("%s ..... %s", task_data.task_id, task_effect)
-		prepare_task( task_data.npc_id, task_data.task_id )
+	for i, task_data in pairs(prepared_tasks_data) do 
+		if (i <= 10) then
+			CreateTimeEvent("prep_task", "prep_task_" .. i, 0.05 * i, function ()
+				prepare_task( task_data.npc_id, task_data.task_id )
+				-- 0 seconds pushes it immediately after the actor message dispatch
+				CreateTimeEvent("gather_task_additional_details", "gather_task_additional_details_" .. i, 0, function ()
+					-- If no message was received by the actor method, push an empty table so the indexes match
+					printf("icon at this stage is %s",(get_more_task_details(i) or {}).task_icon)
+					if not get_more_task_details(i) then
+						z_taskboard_overrides.push_empty_table()
+					end
+					return true
+				end)
+				return true
+			end)
+		end
 	end
 	
 	-- Delay required for task details from actor message to be properly collected
-	CreateTimeEvent("taskboard_delay_render", "taskboard_delay_render", 0.05, function ()
+	CreateTimeEvent("taskboard_delay_render", "taskboard_delay_render", 0.5 + 0.05 * (#prepared_tasks_data + 1), function ()
+		-- Counter used to help retrieve the infor about the right task in case there are some on the list that don't have that info
 		-- Generate taskboard entries
-		local i = 1
-		for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
-			-- Save the order of the rows and currently viewed item from the category to be able to update a single row later
-			current_board_state[i] = {
-				task_effect = task_effect,
-				current_index = 1
-			}
-			update_task_entry(pda_tab, i, filtered_task_list[1])
-			i = i + 1
+		for i, task_data in pairs(prepared_tasks_data) do 
+			if (i <= 10) then
+				local stalker = level.object_by_id(task_data.npc_id)
+
+				local stalker_comm = stalker:character_community()
+				local stalker_icon = stalker:character_icon()
+				local stalker_name = stalker:character_name()
+				
+				stalker_icon = stalker_icon and stalker_icon ~= "" and stalker_icon or "ui\\ui_noise"
+				pda_tab.taskboard_info[i].icon_field:InitTexture(stalker_icon)
+				pda_tab.taskboard_info[i].icon_field:Show(true)
+				
+				local name = string.gsub(stalker_name, "Junior", "Jr.")
+				name = string.gsub(name, "Senior", "Sr.")
+				name = string.gsub(name, "Master ", "M.")
+				name = string.gsub(name, "Private", "Pvt.")
+				name = string.gsub(name, "Sergeant", "Sgt.")
+				name = string.gsub(name, "Lieutenant", "Lt.")
+				name = string.gsub(name, "Captain", "Cpt.")
+				name = string.len(name) <= 22 and name or string.sub(name, 0, 19) .. "..."
+				pda_tab.taskboard_info[i].name_field:SetText(name)
+				
+				pda_tab.taskboard_info[i].comm_label:SetText(game.translate_string("ui_st_community") .. ": ")
+				pda_tab.taskboard_info[i].comm_field:SetText(game.translate_string(stalker_comm))
+				
+				-- Display relation by colouring the stalker's faction name appropriately.
+				if (xr_conditions.is_factions_friends(nil, nil, { stalker_comm, character_community(db.actor) })) then
+					pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_green)
+				elseif (xr_conditions.is_factions_enemies(nil, nil, { stalker_comm, character_community(db.actor) })) then
+					pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_red)
+				else 
+					pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_yellow)
+				end
+
+				local more_task_details = get_more_task_details(i) or {}
+				pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
+				pda_tab.taskboard_info[i].task_icon_field:Show(true)
+				pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title or "")
+				pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details or "")
+				pda_tab.taskboard_info[i].task_full_description_field:SetText(task_data.task_description or "")
+				pda_tab.taskboard_info[i].task_accept_btn:Show(true)
+			end
 		end
+		printf((get_more_task_details(3) or {}).task_icon)
 		return true
 	end)
 end
@@ -185,32 +223,10 @@ function accept_task_callback_factory(pda_tab, row_index)
 end
 
 function accept_task(pda_tab, row_index)
-	local entry_info = current_board_state[row_index]
-	local task_details = prepared_tasks_data[entry_info.task_effect][entry_info.current_index]
-	task_manager.get_task_manager():give_task(task_details.task_id, task_details.npc_id)
+	local task_data = prepared_tasks_data[row_index]
+	task_manager.get_task_manager():give_task(task_data.task_id, task_data.npc_id)
 	clear_cached_data()
 	reset_taskboard(pda_tab)
-end
-
-function next_task_in_category_callback_factory(pda_tab, row_index)
-	return function() 
-		next_task_in_category(pda_tab, row_index)
-	end
-end
-
-function next_task_in_category(pda_tab, row_index)
-	local entry_info = current_board_state[row_index]
-	local next_task = prepared_tasks_data[entry_info.task_effect][entry_info.current_index + 1]
-	
-	if next_task then
-		prepare_task( next_task.npc_id, next_task.task_id )
-
-		CreateTimeEvent("next_task_delay", "next_task_delay", 0.05, function () 
-			entry_info.current_index = entry_info.current_index + 1
-			update_task_entry(pda_tab, row_index, next_task)
-			return true
-		end)
-	end
 end
 
 function refresh_tasks_factory(pda_tab) 
@@ -223,7 +239,6 @@ end
 function clear_cached_data()
 	z_taskboard_overrides.clear_tasks_info()
 	prepared_tasks_data = {}
-	current_board_state = {}
 end
 
 function clear_taskboard_ui(pda_tab) 
@@ -240,7 +255,6 @@ function clear_taskboard_ui(pda_tab)
 			pda_tab.taskboard_info[i].task_details_field:SetText("")
 			pda_tab.taskboard_info[i].task_accept_btn:Show(false)
 			pda_tab.taskboard_info[i].task_full_description_field:SetText("")
-			pda_tab.taskboard_info[i].task_next_btn:Show(false)
 		end
 	end
 end
@@ -281,80 +295,19 @@ function trigger_generate_available_tasks(npc_list)
 	end
 end
 
--- These tasks fire additional scripts that break the other script execution
-local excluded_effects = {"script"}
 function get_prepared_task_data(npc_list) 
-	-- Split available tasks into categories based on their init effect
 	local result = {}
 	for _,stalker in pairs(npc_list) do 
 		local stalker_task_list = axr_task_manager.available_tasks[stalker:id()] or {}
 		for _, task_id in pairs(stalker_task_list) do
-			local raw_task_effect = task_manager.task_ini:r_string_ex(task_id,"on_job_descr") or task_manager.task_ini:r_string_ex(task_id,"fetch_func")
-			local task_effect = string.gmatch(raw_task_effect or "", "=(.*)%(")() or "rest"
-			task_effect = normalize_task_effect(task_effect)
-			if not has_value(excluded_effects, task_effect) then
-				if not result[task_effect] then
-					result[task_effect] = {}
-				end
-				table.insert(result[task_effect], {
-					npc_id = stalker:id(),
-					task_id = task_id,
-					task_description = game.translate_string(axr_task_manager.get_task_job_description( task_id )),
-				})
-			end
+			table.insert(result, {
+				npc_id = stalker:id(),
+				task_id = task_id,
+				task_description = game.translate_string(axr_task_manager.get_task_job_description( task_id )),
+			})
 		end
 	end
 	return result
-end
-
-function update_task_entry(pda_tab, i, task_details) 
-	local stalker = level.object_by_id(task_details.npc_id)
-
-	local stalker_comm = stalker:character_community()
-	local stalker_icon = stalker:character_icon()
-	local stalker_name = stalker:character_name()
-	
-	stalker_icon = stalker_icon and stalker_icon ~= "" and stalker_icon or "ui\\ui_noise"
-	pda_tab.taskboard_info[i].icon_field:InitTexture(stalker_icon)
-	pda_tab.taskboard_info[i].icon_field:Show(true)
-	
-	local name = string.gsub(stalker_name, "Junior", "Jr.")
-	name = string.gsub(name, "Senior", "Sr.")
-	name = string.gsub(name, "Master ", "M.")
-	name = string.gsub(name, "Private", "Pvt.")
-	name = string.gsub(name, "Sergeant", "Sgt.")
-	name = string.gsub(name, "Lieutenant", "Lt.")
-	name = string.gsub(name, "Captain", "Cpt.")
-	name = string.len(name) <= 22 and name or string.sub(name, 0, 19) .. "..."
-	pda_tab.taskboard_info[i].name_field:SetText(name)
-	
-	pda_tab.taskboard_info[i].comm_label:SetText(game.translate_string("ui_st_community") .. ": ")
-	pda_tab.taskboard_info[i].comm_field:SetText(game.translate_string(stalker_comm))
-	
-	-- Display relation by colouring the stalker's faction name appropriately.
-	if (xr_conditions.is_factions_friends(nil, nil, { stalker_comm, character_community(db.actor) })) then
-		pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_green)
-	elseif (xr_conditions.is_factions_enemies(nil, nil, { stalker_comm, character_community(db.actor) })) then
-		pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_red)
-	else 
-		pda_tab.taskboard_info[i].comm_field:SetTextColor(pda_tab.clr_yellow)
-	end
-
-	local more_task_details = get_more_task_details(i) or {}
-	pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
-	pda_tab.taskboard_info[i].task_icon_field:Show(true)
-	pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title or "")
-	pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details or "")
-	pda_tab.taskboard_info[i].task_full_description_field:SetText(task_details.task_description or "")
-	pda_tab.taskboard_info[i].task_accept_btn:Show(true)
-	pda_tab.taskboard_info[i].task_next_btn:Show(has_more_task_in_category(i))
-end
-
-function has_more_task_in_category(i) 
-	local entry_info = current_board_state[i]
-	local next_task = prepared_tasks_data[entry_info.task_effect][entry_info.current_index + 1]
-	-- To do: add condition for the button to not show at all
-	return not not next_task
 end
 
 -- This function is a pure fuckery and crime against the code, but there's literally no other way to couple the
@@ -362,34 +315,5 @@ end
 -- titles, but reading from ini for some reason causes busy hands/script freeze (same as with rendering several tasks of the same type
 -- at the same time). It works though, so...
 function get_more_task_details(i)
-	local entry_info = current_board_state[i]
-	if entry_info.current_index == 1 then
-		-- If no new task has been requested for a given category, index of details will be the same as the index of row (or at least I didn't observe any
-		-- deviations from that rule for now)
-		return z_taskboard_overrides.tasks_info[i]
-	else
-		-- If new task has been requested, the details will be appended at the end of the array, so we can easily read them
-		return z_taskboard_overrides.tasks_info[#z_taskboard_overrides.tasks_info]
-	end
-end
-
-function has_value (tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-        end
-    end
-
-    return false
-end
-
-function normalize_task_effect(task_effect) 
-	-- Some effects have different names even though they perform pretty much the same actions as the generic/simulation task effects
-	-- Those should be pushed into the same category to prevent script freeze/busy hands
-	local normalizer = {
-		setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task",
-		setup_generic_fetch_task = "setup_fetch_task",
-		drx_sl_create_quest_stash = "setup_fetch_task" -- unsure
-	}
-	return normalizer[task_effect] or task_effect
+	return z_taskboard_overrides.tasks_info[i]
 end
