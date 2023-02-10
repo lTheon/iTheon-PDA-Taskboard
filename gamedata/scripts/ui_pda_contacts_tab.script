@@ -34,7 +34,7 @@ function pda_contacts_tab:InitControls()
 
 	-- Taskboard
 	self.taskboard_listbox = xml:InitListBox("taskboard_listbox", self)
-	self.taskboard_listbox:SetItemHeight(140)
+	self.taskboard_listbox:SetItemHeight(165)
 	self:Register(self.taskboard_listbox, "taskboard_listbox")
 	for i = 1, row_limit do
 		self.taskboard_listbox:AddExistingItem(ui_taskboard_row(self, i, xml))
@@ -45,9 +45,6 @@ end
 ------------------- TASKBOARD
 class "ui_taskboard_row" (CUIListBoxItem)
 function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
-	self:GetTextItem():SetText("")
-	self:SetWndSize(vector2():set(740, 140))
-
 	local is_widescreen = true --utils_xml.is_widescreen()
 	local offset_comm = is_widescreen and 36 or 49
 	local offset_rank = is_widescreen and 25 or 34
@@ -61,8 +58,7 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 		["comm_label"] = self:AddTextField("", 1), 
 		["icon_field"] = self:AddIconField(1), 
 		["name_field"] = self:AddTextField("", 1),
-		["task_icon_field"] = self:AddIconField(1), 
-		["task_title_field"] = self:AddTextField("", 1),
+		["task_icon_field"] = self:AddIconField(1),
 		["task_details_field"] = self:AddTextField("", 1),
 		["task_full_description_field"] = self:AddTextField("", 1),
 		["task_accept_btn"] = xml:Init3tButton("btn_accept_task", self),
@@ -83,15 +79,15 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 	parent.taskboard_info[row].icon_field:Show(false)
 	
 	parent.taskboard_info[row].name_field:SetFont(GetFontLetterica16Russian())
-	parent.taskboard_info[row].name_field:SetWndSize(vector2():set(120, 20))
+	parent.taskboard_info[row].name_field:SetWndSize(vector2():set(130, 20))
 	parent.taskboard_info[row].name_field:SetWndPos(vector2():set(x, 65))
 	
 	parent.taskboard_info[row].comm_label:SetFont(GetFontLetterica16Russian())
-	parent.taskboard_info[row].comm_label:SetWndSize(vector2():set(120, 20))
+	parent.taskboard_info[row].comm_label:SetWndSize(vector2():set(130, 20))
 	parent.taskboard_info[row].comm_label:SetWndPos(vector2():set(x, 80))
 	
 	parent.taskboard_info[row].comm_field:SetFont(GetFontLetterica16Russian())
-	parent.taskboard_info[row].comm_field:SetWndSize(vector2():set(120, 20))
+	parent.taskboard_info[row].comm_field:SetWndSize(vector2():set(130, 20))
 	parent.taskboard_info[row].comm_field:SetWndPos(vector2():set(x + offset_comm, 80))
 
 	parent.taskboard_info[row].task_icon_field:InitTexture("ui\\ui_noise")
@@ -100,21 +96,17 @@ function ui_taskboard_row:__init(parent, row, xml) super(parent, row, xml)
 	parent.taskboard_info[row].task_icon_field:SetWndPos(vector2():set(140, 0))
 	parent.taskboard_info[row].task_icon_field:Show(false)
 
-	parent.taskboard_info[row].task_title_field:SetFont(GetFontLetterica16Russian())
-	parent.taskboard_info[row].task_title_field:SetWndSize(vector2():set(180, 30))
-	parent.taskboard_info[row].task_title_field:SetWndPos(vector2():set(140, 60))
-	parent.taskboard_info[row].task_title_field:SetTextComplexMode(true)
-
 	parent.taskboard_info[row].task_details_field:SetFont(GetFontLetterica16Russian())
-	parent.taskboard_info[row].task_details_field:SetWndSize(vector2():set(180, 20))
-	parent.taskboard_info[row].task_details_field:SetWndPos(vector2():set(140, 100))
+	parent.taskboard_info[row].task_details_field:SetWndSize(vector2():set(103, 20))
+	parent.taskboard_info[row].task_details_field:SetWndPos(vector2():set(140, 60))
 	parent.taskboard_info[row].task_details_field:SetTextComplexMode(true)
+	parent.taskboard_info[row].task_details_field:SetVTextAlignment(0)
 
 	parent.taskboard_info[row].task_full_description_field:SetFont(GetFontLetterica16Russian())
-	parent.taskboard_info[row].task_full_description_field:SetWndSize(vector2():set(380, 180))
-	parent.taskboard_info[row].task_full_description_field:SetWndPos(vector2():set(230, 0))
+	parent.taskboard_info[row].task_full_description_field:SetWndSize(vector2():set(360, 180))
+	parent.taskboard_info[row].task_full_description_field:SetWndPos(vector2():set(250, 0))
 	parent.taskboard_info[row].task_full_description_field:SetTextComplexMode(true)
-	parent.taskboard_info[row].task_full_description_field:SetVTextAlignment(true)
+	parent.taskboard_info[row].task_full_description_field:SetVTextAlignment(0)
 
 	parent.taskboard_info[row].task_accept_btn:SetWndSize(vector2():set(60, 40))
 	parent.taskboard_info[row].task_accept_btn:SetWndPos(vector2():set(630, 0))
@@ -246,7 +238,6 @@ function clear_taskboard_ui(pda_tab)
 			pda_tab.taskboard_info[i].name_field:SetText("")
 
 			pda_tab.taskboard_info[i].task_icon_field:Show(false)
-			pda_tab.taskboard_info[i].task_title_field:SetText("")
 			pda_tab.taskboard_info[i].task_details_field:SetText("")
 			pda_tab.taskboard_info[i].task_accept_btn:Show(false)
 			pda_tab.taskboard_info[i].task_full_description_field:SetText("")
@@ -352,8 +343,11 @@ function update_task_entry(pda_tab, i, task_details)
 	local more_task_details = get_more_task_details(i) or {}
 	pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
 	pda_tab.taskboard_info[i].task_icon_field:Show(true)
-	pda_tab.taskboard_info[i].task_title_field:SetText(more_task_details.task_title or "")
-	pda_tab.taskboard_info[i].task_details_field:SetText(more_task_details.task_details or "")
+	pda_tab.taskboard_info[i].task_details_field:SetText(
+		(more_task_details.task_title or "") .. 
+		"\\n" .. 
+		(string.gsub(more_task_details.task_details or "", "\\n ", "\\n"))
+	)
 	pda_tab.taskboard_info[i].task_full_description_field:SetText(task_details.task_description or "")
 	pda_tab.taskboard_info[i].task_accept_btn:Show(true)
 	pda_tab.taskboard_info[i].task_next_btn:Show(has_more_task_in_category(i))
