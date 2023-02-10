@@ -17,5 +17,5 @@ Possible questions: <br>
 Q: My mutant part delivery mission has weird description. Why? <br>
 A: Some "get mutant parts" tasks have messed up descriptions in PDA - this is not caused by the remote PDA taskboard. I've investigated it and it seems like the game is loading the .ltx files from the disabled mods, causing some task info to be overwritten (e.g. compare tm_warfare.ltx line 1308 in Warfare Overhaul and Vanilla Anomaly). The game fetches the info from Warfare Overhaul instead of vanilla one. Task effect is not passing the required info to the function that builds the description.
 
-Q: Why you didn't make a one full board of tasks? <br>
+Q: Why you didn't make one full board of tasks? <br>
 A: Engine limitation. I've tried doing it in several different ways, but there needs to be a delay between fetching detailed info about tasks of similar type. With no delay, specific info about the task (e. g. target name and location) will not load properly. You could accept such a task, but you wouldn't know who exactly you have to kill and where he is before you accept it. With full list - even when I've set certain delays to 10 seconds - it sometimes happened anyway. With split list, there doesn't need to be any delay.
