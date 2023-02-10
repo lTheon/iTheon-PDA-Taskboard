@@ -4,7 +4,7 @@ This mod changes the Contacts tab of PDA into a taskboard where you can accept a
 I've performed a lot of tests (mainly in Rostok and DV), but I can never be sure whether I didn't miss some edge cases, so I'm releasing it for public testing for the players now.
 
 How to use it? <br>
-On Contacts tab there's a Refresh tasks button - click it once and wait for the tasks to be processed (time depends on the population density in radius, but is pretty fast). Don't spam it for now, as you'll break the scripts (will add a refire delay). <br>
+On Contacts tab there's a Refresh tasks button - click it once and wait for the tasks to be processed (time depends on the population density in radius, but is pretty fast). <br>
 You'll get a list of tasks split into categories. Next to the task description you will see two buttons - these require double click for some reason (I'll work on changing that). Accept task - self-explanatory - accepting a task automatically refreshes the board, as some tasks automatically remove others from the available list (vanilla Anomaly stuff). Next task - tells PDA to prepare info about the next task in category.
 
 To dos: <br>
