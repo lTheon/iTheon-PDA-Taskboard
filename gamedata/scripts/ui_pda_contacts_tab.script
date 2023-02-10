@@ -212,9 +212,21 @@ function next_task_in_category(pda_tab, row_index)
 end
 
 function refresh_tasks_factory(pda_tab) 
+	local refresh_disabled = false
+	local function temporary_disable_refresh() 
+		local delay = 2
+		refresh_disabled = true
+		CreateTimeEvent("reenable_refresh", "reenable_refresh", delay, function () 
+			refresh_disabled = false
+			return true
+		end)
+	end
 	return function () 
-		clear_cached_data()
-		reset_taskboard(pda_tab)
+		if (not refresh_disabled) then
+			temporary_disable_refresh()
+			clear_cached_data()
+			reset_taskboard(pda_tab)
+		end
 	end
 end
 
