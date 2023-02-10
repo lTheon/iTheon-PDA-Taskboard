@@ -252,13 +252,12 @@ function get_nearby_npcs()
 		end
 	end)
 	
-	-- To do: check if those two actually work
 	-- Special case for Sidorovich and Forester.
 	local function add_by_sid(sid)
 		local id = story_objects.object_id_by_story_id[sid]
 		if (id) then 
 			local npc = db.storage[id] and db.storage[id].object 
-			if (npc and db.actor:position():distance_to_sqr(npc:position()) <= radius) then 
+			if (npc and db.actor:position():distance_to(npc:position()) <= radius) then 
 				table.insert(npc_list, npc)
 			end
 		end
@@ -279,8 +278,8 @@ function trigger_generate_available_tasks(npc_list)
 	end
 end
 
--- These tasks fire additional scripts that break the other script execution
-local excluded_effects = {"script"}
+-- These tasks fire additional scripts that break the other script execution - mainly used for testing purposes
+local excluded_effects = {}
 function get_prepared_task_data(npc_list) 
 	-- Split available tasks into categories based on their init effect
 	local result = {}
