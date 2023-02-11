@@ -1,4 +1,4 @@
-# iTheon-PDA-Taskboard v0.1.2
+# iTheon-PDA-Taskboard v0.1.2a
 
 This mod changes the Contacts tab of PDA into a taskboard where you can accept all the dynamic tasks remotely
 I've performed a lot of tests (mainly in Rostok and DV), but I can never be sure whether I didn't miss some edge cases, so I'm releasing it for public testing for the players now.
@@ -22,6 +22,10 @@ Credits:
 Mr. Demonized - optimized time events script
 
 Changelog:
+
+v0.1.2a
+
+- Fix task giver override not getting cleared after processing fetch tasks
 
 v0.1.2
 
