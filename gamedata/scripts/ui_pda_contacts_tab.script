@@ -162,7 +162,6 @@ function prepare_task(npc_id, task_id)
 	local fetch = task_id and task_manager.task_ini:r_string_ex(task_id,"fetch_descr")
 	if (fetch) then
 		axr_task_manager.trigger_fetch_func(task_id)
-		return strformat(game.translate_string(fetch),_FETCH_TEXT or "")
 	end
 
 	currently_processed_npc_id = nil
