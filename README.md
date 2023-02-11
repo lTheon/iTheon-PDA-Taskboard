@@ -18,6 +18,9 @@ A: Some "get mutant parts" tasks have messed up descriptions in PDA - this is no
 Q: Why you didn't make one full board of tasks? <br>
 A: Engine limitation. I've tried doing it in several different ways, but there needs to be a delay between fetching detailed info about tasks of similar type. With no delay, specific info about the task (e. g. target name and location) will not load properly. You could accept such a task, but you wouldn't know who exactly you have to kill and where he is before you accept it. With full list - even when I've set certain delays to 10 seconds - it sometimes happened anyway. With split list, there doesn't need to be any delay.
 
+Credits:
+Mr. Demonized - optimized time events script
+
 Changelog:
 
 v0.1.1
