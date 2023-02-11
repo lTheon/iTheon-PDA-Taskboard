@@ -342,12 +342,16 @@ function update_task_entry(pda_tab, i, task_details)
 	local more_task_details = get_more_task_details(i) or {}
 	pda_tab.taskboard_info[i].task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
 	pda_tab.taskboard_info[i].task_icon_field:Show(true)
-	pda_tab.taskboard_info[i].task_details_field:SetText(
-		(more_task_details.task_title or "") .. 
-		"\\n" .. 
-		(string.gsub(more_task_details.task_details or "", "\\n ", "\\n"))
-	)
-	pda_tab.taskboard_info[i].task_full_description_field:SetText(task_details.task_description or "")
+
+	local details = (more_task_details.task_title or "") .. 
+	"\\n" .. 
+	(string.gsub(more_task_details.task_details or "", "\\n ", "\\n"))
+	details = string.len(details) <= 120 and details or string.sub(details, 0, 117) .. "..."
+	pda_tab.taskboard_info[i].task_details_field:SetText(details)
+
+	local full_desc = task_details.task_description or ""
+	full_desc = string.len(full_desc) <= 640 and full_desc or string.sub(full_desc, 0, 637) .. "..."
+	pda_tab.taskboard_info[i].task_full_description_field:SetText(full_desc)
 	pda_tab.taskboard_info[i].task_accept_btn:Show(true)
 	pda_tab.taskboard_info[i].task_next_btn:Show(has_more_task_in_category(i))
 end
