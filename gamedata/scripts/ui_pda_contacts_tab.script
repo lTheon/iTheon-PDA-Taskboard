@@ -359,7 +359,6 @@ function has_more_task_in_category(i)
 	return not not next_task
 end
 
-local processed_tasks_with_no_info = 0
 -- This function is a pure fuckery and crime against the code, but there's literally no other way to couple the
 -- task data with the details received through overridden actor method.
 function get_more_task_details(i)
@@ -368,15 +367,24 @@ function get_more_task_details(i)
 		-- If no new task has been requested for a given category, index of details will be the same as the index of row (or at least I didn't observe any
 		-- deviations from that rule for now)
 		if(entry_info.task_effect ~= "rest") then
-			return z_taskboard_overrides.tasks_info[i - processed_tasks_with_no_info]
-		else 
-			-- Some tasks do not have detailed info - this has to be taken into consideration when fetching info for them and for the next tasks
-			processed_tasks_with_no_info = processed_tasks_with_no_info + 1
-		end
+			return z_taskboard_overrides.tasks_info[i - get_processed_tasks_with_no_info_count(i)]
+		else return end
 	else
 		-- If new task has been requested, the details will be appended at the end of the array, so we can easily read them
-		return z_taskboard_overrides.tasks_info[#z_taskboard_overrides.tasks_info]
+		if(entry_info.task_effect ~= "rest") then
+			return z_taskboard_overrides.tasks_info[#z_taskboard_overrides.tasks_info]
+		else return end
 	end
+end
+
+function get_processed_tasks_with_no_info_count(i) 
+	local count = 0
+	for index, entry_info in ipairs(current_board_state) do
+		if index < i and entry_info.task_effect == "rest" then
+			count = count + 1
+		end
+	end
+	return count
 end
 
 function has_value (tab, val)
