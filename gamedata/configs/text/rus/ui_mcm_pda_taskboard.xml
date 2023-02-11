@@ -8,6 +8,6 @@
 		<text>PDA Taskboard</text>
 	</string>
 	<string id="ui_mcm_pda_taskboard_scanning_range">
-		<text>Scanning range</text>
+		<text>Радиус сканирования</text>
 	</string>
 </string_table>
