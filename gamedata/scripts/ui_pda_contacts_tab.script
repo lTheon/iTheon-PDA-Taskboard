@@ -1,4 +1,4 @@
-local row_limit = 10
+local row_limit = 15
 
 local SINGLETON = nil
 function get_ui()
@@ -136,13 +136,15 @@ function reset_taskboard(pda_tab)
 		-- Generate taskboard entries
 		local i = 1
 		for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
-			-- Save the order of the rows and currently viewed item from the category to be able to update a single row later
-			current_board_state[i] = {
-				task_effect = task_effect,
-				current_index = 1
-			}
-			update_task_entry(pda_tab, i, filtered_task_list[1])
-			i = i + 1
+			if i <= row_limit then
+				-- Save the order of the rows and currently viewed item from the category to be able to update a single row later
+				current_board_state[i] = {
+					task_effect = task_effect,
+					current_index = 1
+				}
+				update_task_entry(pda_tab, i, filtered_task_list[1])
+				i = i + 1
+			end
 		end
 		return true
 	end)
@@ -401,14 +403,14 @@ function has_value (tab, val)
     return false
 end
 
+-- Some effects have different names even though they perform pretty much the same actions as the generic/simulation task effects
+-- Those should be pushed into the same category to prevent queued actor messages from being discarded
+normalizer = {
+	setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task",
+	setup_generic_fetch_task = "setup_fetch_task",
+	drx_sl_create_quest_stash = "setup_fetch_task"
+}
 function normalize_task_effect(task_effect) 
-	-- Some effects have different names even though they perform pretty much the same actions as the generic/simulation task effects
-	-- Those should be pushed into the same category to prevent queued actor messages from being discarded
-	local normalizer = {
-		setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task",
-		setup_generic_fetch_task = "setup_fetch_task",
-		drx_sl_create_quest_stash = "setup_fetch_task"
-	}
 	return normalizer[task_effect] or task_effect
 end
 
