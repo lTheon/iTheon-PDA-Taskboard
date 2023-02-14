@@ -178,7 +178,9 @@ end
 function accept_task(pda_tab, row_index)
 	local entry_info = current_board_state[row_index]
 	local task_details = prepared_tasks_data[entry_info.task_effect][entry_info.current_index]
+	currently_processed_npc_id = task_details.npc_id
 	task_manager.get_task_manager():give_task(task_details.task_id, task_details.npc_id)
+	currently_processed_npc_id = nil
 	clear_cached_data()
 	reset_taskboard(pda_tab)
 end
