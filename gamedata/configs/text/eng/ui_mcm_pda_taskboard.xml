@@ -10,4 +10,16 @@
 	<string id="ui_mcm_pda_taskboard_scanning_range">
 		<text>Scanning range</text>
 	</string>
+	<string id="ui_mcm_pda_taskboard_trim_text">
+		<text>Trim long text</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_trim_text_desc">
+		<text>Toggle this option off if you'd like to turn off trimming of the task details and description. Keep in mind that you'll probably also need to modify the list row height below so that very long descriptions are not overlapping with the next task.</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_list_row_height">
+		<text>List row height</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_list_row_height_desc">
+		<text>Used alongside the trimming toggle above. This option will increase the height of the task row so that untrimmed text won't overlap. Keep in mind that these changes take place only after reloading the saved game.</text>
+	</string>
 </string_table>

@@ -34,7 +34,7 @@ function pda_contacts_tab:InitControls()
 
 	-- Taskboard
 	self.taskboard_listbox = xml:InitListBox("taskboard_listbox", self)
-	self.taskboard_listbox:SetItemHeight(165)
+	self.taskboard_listbox:SetItemHeight(config.list_row_height)
 	self:Register(self.taskboard_listbox, "taskboard_listbox")
 	for i = 1, row_limit do
 		self.taskboard_listbox:AddExistingItem(ui_taskboard_row(self, i, xml))
@@ -351,11 +351,15 @@ function update_task_entry(pda_tab, i, task_details)
 	local details = (more_task_details.task_title or "") .. 
 	"\\n" .. 
 	(string.gsub(more_task_details.task_details or "", "\\n ", "\\n"))
-	details = string.len(details) <= 120 and details or string.sub(details, 0, 117) .. "..."
+	if (config.trim_text) then
+		details = string.len(details) <= 120 and details or string.sub(details, 0, 117) .. "..."
+	end
 	pda_tab.taskboard_info[i].task_details_field:SetText(details)
 
 	local full_desc = task_details.task_description or ""
-	full_desc = string.len(full_desc) <= 640 and full_desc or string.sub(full_desc, 0, 637) .. "..."
+	if (config.trim_text) then
+		full_desc = string.len(full_desc) <= 640 and full_desc or string.sub(full_desc, 0, 637) .. "..."
+	end
 	pda_tab.taskboard_info[i].task_full_description_field:SetText(full_desc)
 	pda_tab.taskboard_info[i].task_accept_btn:Show(true)
 	pda_tab.taskboard_info[i].task_next_btn:Show(has_more_task_in_category(i))
