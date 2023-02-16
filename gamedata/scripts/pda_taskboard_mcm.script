@@ -1,12 +1,16 @@
 -- Default config
 config = {
-	scanning_range = 100
+	scanning_range = 100,
+	trim_text = true,
+	list_row_height = 165
 }
 
 op = {
 	id = "pda_taskboard", sh = true, gr = {
     	{id = "banner", type = "slide", size = {512, 50}, text="ui_mcm_pda_taskboard_banner", spacing = 20},
         {id = "scanning_range", type = "track", val = 2, min = 50, max = 300, step = 1, def = config.scanning_range},
+		{id = "trim_text", type = "check", val = 1, def = config.trim_text},
+		{id = "list_row_height", type = "track", val = 2, min = 150, max = 400, step = 1, def = config.list_row_height},
 	}
 }
 
