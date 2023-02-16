@@ -25,7 +25,7 @@ Changelog:
 
 v0.1.7
 
-- Speculative fix for rare bug with messed up details pairing
+- Speculative fix for rare bug with messed up details pairing (as a side effect the task categories will now always be rendered in a sorted order)
 
 v0.1.6
 
