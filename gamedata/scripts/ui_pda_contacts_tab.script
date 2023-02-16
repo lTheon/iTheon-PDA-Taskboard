@@ -125,9 +125,10 @@ function reset_taskboard(pda_tab)
 	trigger_generate_available_tasks(npc_list)
 	prepared_tasks_data = get_prepared_task_data(npc_list)
 
+	local sorted_keys = get_sorted_keys(prepared_tasks_data)
 	-- Basically let XRay do its stuff with setting up logic
-	for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
-		local task_data = filtered_task_list[1]
+	for _, task_effect in ipairs(sorted_keys) do
+		local task_data = prepared_tasks_data[task_effect][1]
 		prepare_task( task_data.npc_id, task_data.task_id )
 	end
 	
@@ -135,14 +136,14 @@ function reset_taskboard(pda_tab)
 	CreateTimeEvent("taskboard_delay_render", "taskboard_delay_render", 0.05, function ()
 		-- Generate taskboard entries
 		local i = 1
-		for task_effect, filtered_task_list in pairs(prepared_tasks_data) do 
+		for _, task_effect in ipairs(sorted_keys) do
 			if i <= row_limit then
 				-- Save the order of the rows and currently viewed item from the category to be able to update a single row later
 				current_board_state[i] = {
 					task_effect = task_effect,
 					current_index = 1
 				}
-				update_task_entry(pda_tab, i, filtered_task_list[1])
+				update_task_entry(pda_tab, i, prepared_tasks_data[task_effect][1])
 				i = i + 1
 			end
 		end
@@ -403,6 +404,15 @@ function has_value (tab, val)
     end
 
     return false
+end
+
+function get_sorted_keys(tab) 
+	local result = {}
+	for key, _ in pairs(tab) do
+		table.insert(result, key)
+	end
+	table.sort(result)
+	return result
 end
 
 -- Some effects have different names even though they perform pretty much the same actions as the generic/simulation task effects
