@@ -10,4 +10,16 @@
 	<string id="ui_mcm_pda_taskboard_scanning_range">
 		<text>–адиус сканировани€</text>
 	</string>
+	<string id="ui_mcm_pda_taskboard_trim_text">
+		<text>ќбрезать длинный текст</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_trim_text_desc">
+		<text>ќтключите этот параметр, если хотите отключить обрезку деталей и описани€ заданий. »мейте в виду, что вам, веро€тно, также потребуетс€ изменить высоту строк, чтобы очень длинные описани€ не накладывались на другие задани€.</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_list_row_height">
+		<text>¬ысота строк</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_list_row_height_desc">
+		<text>»спользуетс€ вместе с обрезкой длинного текста. Ётот параметр увеличит высоту строки описани€ задани€, чтобы необрезанный текст не перекрывалс€. »мейте в виду, что эти изменени€ вступают в силу только после перезагрузки сохраненной игры.</text>
+	</string>
 </string_table>
