@@ -372,6 +372,22 @@ function has_more_task_in_category(i)
 	return not not next_task
 end
 
+function get_igi_task_details(i)
+	if not igi_generic_task then return end
+	if not (igi_description and igi_description.get_task_text_values) then return end
+
+	local task_id = prepared_tasks_data.rest[i] and prepared_tasks_data.rest[i].task_id
+	local CACHE = task_id and igi_generic_task.TASK_SETUP[task_id]
+	if CACHE then
+		local title, text, icon = igi_description.get_task_text_values(CACHE)
+		return {
+			task_title = title,
+			task_details = text,
+			task_icon = icon
+		}
+	end
+end
+
 -- This function is a pure fuckery and crime against the code, but there's literally no other way to couple the
 -- task data with the details received through overridden actor method.
 function get_more_task_details(i)
@@ -381,11 +397,15 @@ function get_more_task_details(i)
 		-- deviations from that rule for now)
 		if(entry_info.task_effect ~= "rest") then
 			return z_taskboard_overrides.tasks_info[i - get_processed_tasks_with_no_info_count(i)]
+		elseif igi_generic_task then
+			return get_igi_task_details(entry_info.current_index)
 		else return end
 	else
 		-- If new task has been requested, the details will be appended at the end of the array, so we can easily read them
 		if(entry_info.task_effect ~= "rest") then
 			return z_taskboard_overrides.tasks_info[#z_taskboard_overrides.tasks_info]
+		elseif igi_generic_task then
+			return get_igi_task_details(entry_info.current_index)
 		else return end
 	end
 end
