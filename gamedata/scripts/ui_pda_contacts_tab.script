@@ -287,6 +287,9 @@ end
 
 -- These tasks fire additional scripts that break the other script execution - mainly used for testing purposes
 local excluded_effects = {}
+-- Tasks that should not be picked by the taskboard (e. g. ones that are not accessible without it)
+local excluded_tasks = {"jup_b19_freedom_yar_task_1"}
+
 function get_prepared_task_data(npc_list) 
 	-- Split available tasks into categories based on their init effect
 	local result = {}
@@ -296,7 +299,7 @@ function get_prepared_task_data(npc_list)
 			local raw_task_effect = task_manager.task_ini:r_string_ex(task_id,"on_job_descr") or task_manager.task_ini:r_string_ex(task_id,"fetch_func")
 			local task_effect = string.gmatch(raw_task_effect or "", "=(.*)%(")() or "rest"
 			task_effect = normalize_task_effect(task_effect)
-			if not has_value(excluded_effects, task_effect) then
+			if not has_value(excluded_effects, task_effect) and not has_value(excluded_tasks, task_id) then
 				if not result[task_effect] then
 					result[task_effect] = {}
 				end
