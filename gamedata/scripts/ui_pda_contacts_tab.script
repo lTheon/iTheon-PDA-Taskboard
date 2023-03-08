@@ -288,7 +288,7 @@ end
 -- These tasks fire additional scripts that break the other script execution - mainly used for testing purposes
 local excluded_effects = {}
 -- Tasks that should not be picked by the taskboard (e. g. ones that are not accessible without it)
-local excluded_tasks = {"jup_b19_freedom_yar_task_1"}
+local excluded_tasks = {"jup_b19_freedom_yar_task_1", "merc_pri_a18_mech_mlr_task_1"}
 
 function get_prepared_task_data(npc_list) 
 	-- Split available tasks into categories based on their init effect
