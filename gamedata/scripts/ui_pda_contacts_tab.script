@@ -129,7 +129,7 @@ function reset_taskboard(pda_tab)
 	-- Basically let XRay do its stuff with setting up logic
 	for _, task_effect in ipairs(sorted_keys) do
 		local task_data = prepared_tasks_data[task_effect][1]
-		prepare_task( task_data.npc_id, task_data.task_id )
+		prepare_task( task_data )
 	end
 	
 	-- Delay required for task details from actor message to be properly collected
@@ -152,9 +152,9 @@ function reset_taskboard(pda_tab)
 end
 
 currently_processed_npc_id = nil -- required for fetch quest override
-function prepare_task(npc_id, task_id) 
-	currently_processed_npc_id = npc_id
-	local on_job_descr = task_id and task_manager.task_ini:r_string_ex(task_id,"on_job_descr")
+function prepare_task(task_data) 
+	currently_processed_npc_id = task_data.npc_id
+	local on_job_descr = task_data.task_id and task_manager.task_ini:r_string_ex(task_data.task_id,"on_job_descr")
 	if (on_job_descr) then 
 		local cond = xr_logic.parse_condlist(db.actor,"task_manager","condlist",on_job_descr)
 		if (cond) then 
@@ -162,10 +162,12 @@ function prepare_task(npc_id, task_id)
 		end
 	end
 	
-	local fetch = task_id and task_manager.task_ini:r_string_ex(task_id,"fetch_descr")
+	local fetch = task_data.task_id and task_manager.task_ini:r_string_ex(task_data.task_id,"fetch_descr")
 	if (fetch) then
-		axr_task_manager.trigger_fetch_func(task_id)
+		axr_task_manager.trigger_fetch_func(task_data.task_id)
 	end
+	local desc = game.translate_string(axr_task_manager.get_fetch_task_description( task_data.task_id ) or axr_task_manager.get_task_job_description( task_data.task_id ))
+	task_data.task_description = string.format( desc, dialogs._FETCH_TEXT or "" )
 
 	currently_processed_npc_id = nil
 end
@@ -197,7 +199,7 @@ function next_task_in_category(pda_tab, row_index)
 	local next_task = prepared_tasks_data[entry_info.task_effect][entry_info.current_index + 1]
 	
 	if next_task then
-		prepare_task( next_task.npc_id, next_task.task_id )
+		prepare_task( next_task )
 
 		CreateTimeEvent("next_task_delay", "next_task_delay", 0.05, function () 
 			entry_info.current_index = entry_info.current_index + 1
@@ -306,7 +308,6 @@ function get_prepared_task_data(npc_list)
 				table.insert(result[task_effect], {
 					npc_id = stalker:id(),
 					task_id = task_id,
-					task_description = game.translate_string(axr_task_manager.get_task_job_description( task_id )),
 				})
 			end
 		end
