@@ -166,10 +166,20 @@ function prepare_task(task_data)
 	if (fetch) then
 		axr_task_manager.trigger_fetch_func(task_data.task_id)
 	end
-	local desc = game.translate_string(axr_task_manager.get_fetch_task_description( task_data.task_id ) or axr_task_manager.get_task_job_description( task_data.task_id ))
-	task_data.task_description = string.format( desc, dialogs._FETCH_TEXT or "" )
+	task_data.task_description = get_long_task_description(task_data)
 
 	currently_processed_npc_id = nil
+end
+
+function get_long_task_description(task_data) 
+	-- Mechanic quests are using standard "job_descr" in the dialog manager instead of the fetch one, even though they're
+	-- technically a fetch task. This requires a small exception
+	local is_mechanic_task = string.find(task_data.task_id, "mechanic_task")
+	local base_desc = game.translate_string(
+		(not is_mechanic_task and axr_task_manager.get_fetch_task_description( task_data.task_id )) or
+		axr_task_manager.get_task_job_description( task_data.task_id )
+	)
+	return string.format( base_desc, dialogs._FETCH_TEXT or "" )
 end
 
 function accept_task_callback_factory(pda_tab, row_index)
