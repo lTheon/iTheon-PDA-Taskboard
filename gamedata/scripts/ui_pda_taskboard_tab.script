@@ -2,12 +2,12 @@ local row_limit = 15
 
 local SINGLETON = nil
 function get_ui()
-	SINGLETON = SINGLETON or pda_contacts_tab()
+	SINGLETON = SINGLETON or pda_taskboard_tab()
 	return SINGLETON
 end
 -- Constructor.
-class "pda_contacts_tab" (CUIScriptWnd)
-function pda_contacts_tab:__init() super()
+class "pda_taskboard_tab" (CUIScriptWnd)
+function pda_taskboard_tab:__init() super()
 	self.taskboard_info = {}
 	
 	self.clr_red 	= utils_xml.get_color("red",true) -- GetARGB(255, 255, 1, 1)
@@ -18,12 +18,12 @@ function pda_contacts_tab:__init() super()
 end
 
 -- Initialise the interface.
-function pda_contacts_tab:InitControls()
+function pda_taskboard_tab:InitControls()
 	self:SetWndRect(Frect():set(0, 0, 1024, 768))
 	
 	-- Main frame.
 	local xml = CScriptXmlInit()
-	xml:ParseFile("pda_contacts.xml")
+	xml:ParseFile("pda_taskboard.xml")
 	xml:InitFrame("frame1", self)
 	xml:InitFrame("frame2", self)
 
