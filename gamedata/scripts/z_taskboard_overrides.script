@@ -17,8 +17,8 @@ function create_overrides()
 
     local original_GetTalkingNpc = mob_trade.GetTalkingNpc
     mob_trade.GetTalkingNpc = function (...)
-        if ui_pda_contacts_tab.currently_processed_npc_id then
-            return level.object_by_id(ui_pda_contacts_tab.currently_processed_npc_id)
+        if ui_pda_taskboard_tab.currently_processed_npc_id then
+            return level.object_by_id(ui_pda_taskboard_tab.currently_processed_npc_id)
         else
             return original_GetTalkingNpc(...)
         end
@@ -26,7 +26,7 @@ function create_overrides()
 
     local original_is_talking = db.actor.is_talking
     db.actor.is_talking = function (...)
-        if ui_pda_contacts_tab.currently_processed_npc_id then
+        if ui_pda_taskboard_tab.currently_processed_npc_id then
             return true
         else
             return original_is_talking(...)
@@ -35,10 +35,19 @@ function create_overrides()
 
     local original_get_speaker = _G.get_speaker
     _G.get_speaker = function (...)
-        if ui_pda_contacts_tab.currently_processed_npc_id then
-            return level.object_by_id(ui_pda_contacts_tab.currently_processed_npc_id)
+        if ui_pda_taskboard_tab.currently_processed_npc_id then
+            return level.object_by_id(ui_pda_taskboard_tab.currently_processed_npc_id)
         else
             return original_get_speaker(...)
+        end
+    end
+
+    local original_set_active_subdialog = pda.set_active_subdialog
+    pda.set_active_subdialog = function (section)
+        if (section == "eptTaskboard") then
+            return ui_pda_taskboard_tab.get_ui()
+        else
+            return original_set_active_subdialog(section)
         end
     end
 end
