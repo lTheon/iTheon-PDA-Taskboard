@@ -21,6 +21,10 @@ https://github.com/Igigog - WTF support
 
 Changelog:
 
+v0.1.12a
+
+- Add missing xml file
+
 v0.1.12
 
 - Add a separate PDA tab for taskboard
