@@ -262,12 +262,15 @@ function clear_taskboard_ui(pda_tab)
 	end
 end
 
+local excluded_npc_sections = {"bar_duty_security_squad_leader"}
 function get_nearby_npcs() 
 	local radius = config.scanning_range
 	local npc_list = {}
 	level.iterate_nearest(db.actor:position(), radius, function (obj)
 		if IsStalker(obj) and obj:alive() and obj:relation(db.actor) ~= game_object.enemy then
-			table.insert(npc_list, obj)
+			if not has_value(excluded_npc_sections, obj:section()) then
+				table.insert(npc_list, obj)
+			end
 		end
 	end)
 	
@@ -434,7 +437,7 @@ function get_processed_tasks_with_no_info_count(i)
 	return count
 end
 
-function has_value (tab, val)
+function has_value(tab, val)
     for index, value in ipairs(tab) do
         if value == val then
             return true
