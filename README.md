@@ -1,4 +1,4 @@
-# iTheon-PDA-Taskboard v0.1.13
+# iTheon-PDA-Taskboard v0.1.14
 
 This mod adds a new taskboard tab to the PDA where you can accept all the dynamic tasks remotely
 
@@ -20,6 +20,10 @@ https://github.com/IIJTypmaH - Russian translation<br>
 https://github.com/Igigog - WTF support
 
 Changelog:
+
+v0.1.14
+- Add taskboard keybinding
+- Change order of the tabs (place taskboard next to map)
 
 v0.1.13
 
