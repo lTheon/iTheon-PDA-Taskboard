@@ -22,4 +22,7 @@
 	<string id="ui_mcm_pda_taskboard_list_row_height_desc">
 		<text>Used alongside the trimming toggle above. This option will increase the height of the task row so that untrimmed text won't overlap. Keep in mind that these changes take place only after reloading the saved game.</text>
 	</string>
+	<string id="ui_mcm_pda_taskboard_taskboard_key">
+		<text>Taskboard PDA shortcut</text>
+	</string>
 </string_table>

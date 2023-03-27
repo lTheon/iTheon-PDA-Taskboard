@@ -73,8 +73,19 @@
 				<h r="170" g="170" b="170"/>
 			</text_color>
 		</button>
+
+		<button x="68" y="0" width="79" height="27" id="eptTaskboard" frame_mode="0">
+			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_taskboard</text>
+            <texture>ui_inGame2_pda_button</texture>
+			<text_color>
+				<t r="255" g="255" b="255"/>
+				<d r="255" g="255" b="255"/>
+				<e r="200" g="200" b="200"/>
+				<h r="170" g="170" b="170"/>
+			</text_color>
+		</button>
 		
-		<button x="68" y="0" width="79" height="27" id="eptRanking" frame_mode="0">
+		<button x="136" y="0" width="79" height="27" id="eptRanking" frame_mode="0">
 			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_ranking</text>
             <texture>ui_inGame2_pda_button</texture>
 			<text_color>
@@ -85,7 +96,7 @@
 			</text_color>
 		</button>
 
-		<button x="136" y="0" width="79" height="27" id="eptRelations" frame_mode="0">
+		<button x="204" y="0" width="79" height="27" id="eptRelations" frame_mode="0">
 			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_relations</text>
             <texture>ui_inGame2_pda_button</texture>
 			<text_color>
@@ -96,7 +107,7 @@
 			</text_color>
 		</button>
 		
-		<button x="204" y="0" width="79" height="27" id="eptContacts" frame_mode="0">
+		<button x="272" y="0" width="79" height="27" id="eptContacts" frame_mode="0">
 			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_contacts</text>
 			<texture>ui_inGame2_pda_button</texture>
 			<text_color>
@@ -107,7 +118,7 @@
 			</text_color>
 		</button>
 		
-		<button x="272" y="0" width="79" height="27" id="eptEncyclopedia" frame_mode="0">
+		<button x="340" y="0" width="79" height="27" id="eptEncyclopedia" frame_mode="0">
 			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_encyclopedia</text>
 			<texture>ui_inGame2_pda_button</texture>
 			<text_color>
@@ -118,7 +129,7 @@
 			</text_color>
 		</button>
 		
-		<button x="340" y="0" width="79" height="27" id="eptRadio" frame_mode="0">
+		<button x="408" y="0" width="79" height="27" id="eptRadio" frame_mode="0">
 			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_radio</text>
 			<texture>ui_inGame2_pda_button</texture>
 			<text_color>
@@ -129,19 +140,8 @@
 			</text_color>
 		</button>
 
-		<button x="408" y="0" width="79" height="27" id="eptLogs" frame_mode="0">
+		<button x="476" y="0" width="79" height="27" id="eptLogs" frame_mode="0">
 			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_logs</text>
-            <texture>ui_inGame2_pda_button</texture>
-			<text_color>
-				<t r="255" g="255" b="255"/>
-				<d r="255" g="255" b="255"/>
-				<e r="200" g="200" b="200"/>
-				<h r="170" g="170" b="170"/>
-			</text_color>
-		</button>
-
-		<button x="476" y="0" width="79" height="27" id="eptTaskboard" frame_mode="0">
-			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_taskboard</text>
             <texture>ui_inGame2_pda_button</texture>
 			<text_color>
 				<t r="255" g="255" b="255"/>
