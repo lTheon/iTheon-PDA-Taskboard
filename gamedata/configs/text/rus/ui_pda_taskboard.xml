@@ -7,6 +7,9 @@
 		<text>Обновить</text>
 	</string>
 	<string id="st_pda_next_task">
-		<text>Следующее</text>
+		<text>Следующее</text>				
+	</string>
+	<string id="pda_btn_taskboard">
+		<text>Доска объявлений</text>
 	</string>
 </string_table>
