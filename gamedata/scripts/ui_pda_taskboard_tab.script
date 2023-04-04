@@ -209,13 +209,20 @@ function next_task_in_category(pda_tab, row_index)
 	local next_task = prepared_tasks_data[entry_info.task_effect][entry_info.current_index + 1]
 	
 	if next_task then
-		prepare_task( next_task )
+		local stalker = level.object_by_id(next_task.npc_id)
+		if stalker then
+			prepare_task( next_task )
 
-		CreateTimeEvent("next_task_delay", "next_task_delay", 0.05, function () 
-			entry_info.current_index = entry_info.current_index + 1
-			update_task_entry(pda_tab, row_index, next_task)
-			return true
-		end)
+			CreateTimeEvent("next_task_delay", "next_task_delay", 0.05, function () 
+				entry_info.current_index = entry_info.current_index + 1
+				update_task_entry(pda_tab, row_index, next_task)
+				return true
+			end)
+		else 
+			-- In case the taskgiver has been deleted by the engine, reset the whole taskboard. Creating workaround
+			-- for deleted stalkers generates several edge cases and adds unnecessary complexity to the code - resetting is easier.
+			reset_taskboard(pda_tab)
+		end
 	end
 end
 
@@ -385,7 +392,6 @@ end
 function has_more_task_in_category(i) 
 	local entry_info = current_board_state[i]
 	local next_task = prepared_tasks_data[entry_info.task_effect][entry_info.current_index + 1]
-	-- To do: add condition for the button to not show at all
 	return not not next_task
 end
 
