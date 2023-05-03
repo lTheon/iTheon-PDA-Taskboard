@@ -1,0 +1,45 @@
+-- These constants need to reflect the XML setup (where applicable)
+local stalker_icon_height = 64
+local task_icon_height = 47
+local row_vertical_padding = 10
+local row_margin_bottom = 5
+local row_width = 764
+local task_category_offset = 25
+
+function adjust_rows(pda_tab)
+	for _, row in ipairs(pda_tab.rows) do
+		row.stalker_info:AdjustHeightToText()
+		row.task_details_field:AdjustHeightToText()
+		row.task_full_description_field:AdjustHeightToText()
+
+		local highest_column_height = math.max(
+            get_stalker_info_column_height(row),
+            get_task_details_column_height(row),
+            get_task_full_description_column_height(row)
+        )
+
+        local row_height = row_vertical_padding * 2 + row_margin_bottom + highest_column_height + task_category_offset
+        local frame_height = row_vertical_padding * 2 + highest_column_height + task_category_offset
+
+        row.frame:SetHeight(frame_height);
+        row:SetWndSize(vector2():set(row_width, row_height))
+	end
+
+    -- Force scrollable area to resize
+    local fake = CUIWindow()
+    pda_tab.list:AddWindow(fake)
+    pda_tab.list:RemoveWindow(fake)
+    pda_tab.list:SetScrollPos(pda_tab.list:GetCurrentScrollPos())
+end
+
+function get_stalker_info_column_height(row)
+    return stalker_icon_height + row.stalker_info:GetHeight()
+end
+
+function get_task_details_column_height(row)
+    return task_icon_height + row.task_details_field:GetHeight()
+end
+
+function get_task_full_description_column_height(row)
+    return row.task_full_description_field:GetHeight()
+end
