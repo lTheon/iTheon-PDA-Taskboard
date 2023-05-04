@@ -38,9 +38,9 @@ Changelog:
 
 v1.0.0
 - Refreshed view with custom icons
-      - Task category captions
-      - Dynamic category row heights - no more weird shit with MCM configs for row height and text trimming
-      - Fixed bug with double-click required for `Next task` and `Accept task` buttons to work - now one click is enough
+      * Task category captions
+      * Dynamic category row heights - no more weird shit with MCM configs for row height and text trimming
+      * Fixed bug with double-click required for `Next task` and `Accept task` buttons to work - now one click is enough
 - Massive code improvements
 - Potential fix for messed up task details
 - Exclude Reefer's task from the scanning
