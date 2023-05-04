@@ -37,10 +37,10 @@ https://github.com/Igigog - WTF support
 Changelog:
 
 v1.0.0
-- Refreshed view with custom icons
-      * Task category captions
-      * Dynamic category row heights - no more weird shit with MCM configs for row height and text trimming
-      * Fixed bug with double-click required for `Next task` and `Accept task` buttons to work - now one click is enough
+- Refreshed view with custom icons<br>
+      * Task category captions<br>
+      * Dynamic category row heights - no more weird shit with MCM configs for row height and text trimming<br>
+      * Fixed bug with double-click required for `Next task` and `Accept task` buttons to work - now one click is enough<br>
 - Massive code improvements
 - Potential fix for messed up task details
 - Exclude Reefer's task from the scanning
