@@ -8,22 +8,22 @@ You'll get a list of tasks split into categories. Next to the task description y
 
 
 Possible questions: <br>
-Q: Why there's no `Previous task` button?
+Q: Why there's no `Previous task` button? <br>
 A: In short - engine limitation. It's because of problems with getting additional info about the task (middle column). To add such a button, I'd need to modify a lot of base game files and this would lead to many compatibility issues with other mods.
 
-Q: Why I can take delivery and measure tasks remotely? They give me some items
+Q: Why I can take delivery and measure tasks remotely? They give me some items <br>
 A: I wanted to add a screen blackout for those tasks, but it's annoying. I think it's better without it. You can omit those tasks if it hurts your realism
 
-Q: Some task details are messed up and are showing next to the wrong task. Why?
+Q: Some task details are messed up and are showing next to the wrong task. Why? <br>
 A: This bug should be eradicated by now. If you still encounter it, please report to me.
 
-Q: One of my tasks has no image. Why?
+Q: One of my tasks has no image. Why? <br>
 A: Some tasks don't have image - no worries.
 
-Q: Does it work with WTF?
+Q: Does it work with WTF? <br>
 A: Technically yes, but some people report random issues. You should report those problems either to me or to Igi.
 
-Q: Some `Search stash` or `Drug runner` tasks appear in `Bounty tasks` category. Is that a bug?
+Q: Some `Search stash` or `Drug runner` tasks appear in `Bounty tasks` category. Is that a bug? <br>
 A: Yes - but it's a bug in vanilla Anomaly files. These tasks need to be categorized as `Bounty tasks` because their setup function dispatches a delayed function to a wrong queue (the bounty task queue). This causes some task details to be lost if a bugged task like this is processed simultaneously with a normal bounty task.
 
 Q: Why you didn't make one full board of tasks? <br>
