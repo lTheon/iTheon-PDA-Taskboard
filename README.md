@@ -15,7 +15,7 @@ Q: Why I can take delivery and measure tasks remotely? They give me some items <
 A: I wanted to add a screen blackout for those tasks, but it's annoying. I think it's better without it. You can omit those tasks if it hurts your realism
 
 Q: Some task details are messed up and are showing next to the wrong task. Why? <br>
-A: This bug should be eradicated by now. If you still encounter it, please report to me.
+A: This bug should be eradicated by now. If you still encounter it, please report to me. EDIT: Sadly - it's not eradicated. The performance improvements achieved through refactoring caused some new issues with asynchronous events. I'll be looking into this later. For now you can be sure that task category, task giver and long description are ALWAYS right - the task details paired with them might be wrong because of async events happening in wrong order.
 
 Q: One of my tasks has no image. Why? <br>
 A: Some tasks don't have image - no worries.
