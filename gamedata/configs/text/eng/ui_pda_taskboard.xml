@@ -40,6 +40,9 @@
 	<string id="st_pda_caption_script">
 		<text>Scripted Tasks</text>
 	</string>
+	<string id="st_pda_caption_recover_mutant_data_location">
+		<text>Recover Mutant Data</text>
+	</string>
 	<string id="st_pda_caption_rest">
 		<text>Other Tasks</text>
 	</string>
