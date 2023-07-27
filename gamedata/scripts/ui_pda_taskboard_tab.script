@@ -225,12 +225,22 @@ function get_nearby_npcs()
 	return npc_list
 end
 
+local actually_is_sim = {
+	"bar_visitors_garik_stalker_guard", 		-- Garik
+	"bar_visitors_zhorik_stalker_guard2", 		-- Zhorik
+	"bar_arena_guard"							-- Liolik
+} 
+
 function trigger_generate_available_tasks(npc_list) 
 	for _,npc in pairs(npc_list) do 
 		-- Sim npcs are random roaming stalkers. Non sims are traders, mechanics, etc.
 		local is_sim = string.find(npc:section(), "sim_")
 		currently_processed_npc_id = npc:id()
-		axr_task_manager.generate_available_tasks(npc, is_sim)
+		if has_value(actually_is_sim, npc:section()) then
+			axr_task_manager.generate_available_tasks(npc, not is_sim)
+		else
+			axr_task_manager.generate_available_tasks(npc, is_sim)
+		end
 		currently_processed_npc_id = nil
 	end
 end
