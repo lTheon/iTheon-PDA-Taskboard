@@ -32,7 +32,7 @@ A: Engine limitation. I've tried doing it in several different ways, but there n
 Credits:<br>
 Mr. Demonized - optimized time events script<br>
 https://github.com/IIJTypmaH - Russian translation<br>
-https://github.com/Igigog - WTF support
+https://github.com/Igigog - WTF support<br>
 https://github.com/flat34 - Rostok loner guards fix
 
 Changelog:
