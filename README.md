@@ -38,7 +38,7 @@ https://github.com/flat34 - Rostok loner guards fix
 Changelog:
 
 v1.0.3
-- Scrapped the Dominance task category, as it is dispatching messages to the same queue as Assault tasks, causing bugs with getting task details
+- Scrapped the Dominance task category, as it is dispatching messages to the same queue as Assault tasks, causing bugs with getting task details. These tasks will now appear as assault tasks.
 - Companions will now not give you tasks by default, but you can turn it on in MCM
 
 v1.0.2
