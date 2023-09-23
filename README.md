@@ -1,4 +1,4 @@
-# iTheon-PDA-Taskboard v1.0.2
+# iTheon-PDA-Taskboard v1.0.3
 
 This mod adds a new taskboard tab to the PDA where you can accept all the dynamic tasks remotely
 
@@ -36,6 +36,10 @@ https://github.com/Igigog - WTF support<br>
 https://github.com/flat34 - Rostok loner guards fix
 
 Changelog:
+
+v1.0.3
+- Scrapped the Dominance task category, as it is dispatching messages to the same queue as Assault tasks, causing bugs with getting task details
+- Companions will now not give you tasks by default, but you can turn it on in MCM
 
 v1.0.2
 - Fix for Rostok loner guards (by flat34)

@@ -202,10 +202,15 @@ function get_nearby_npcs()
 	local radius = config.scanning_range
 	local npc_list = {}
 	level.iterate_nearest(db.actor:position(), radius, function (obj)
-		if IsStalker(obj) and obj:alive() and obj:relation(db.actor) ~= game_object.enemy then
-			if not has_value(excluded_npc_sections, obj:section()) then
+		local is_alive_friendly_stalker = IsStalker(obj) and obj:alive() and obj:relation(db.actor) ~= game_object.enemy
+		local is_excluded_npc = has_value(excluded_npc_sections, obj:section())
+		local is_companion = obj:has_info("npcx_is_companion")
+
+		if
+			is_alive_friendly_stalker
+			and not is_excluded_npc
+			and (is_companion and config.companions_give_tasks or not is_companion) then
 				table.insert(npc_list, obj)
-			end
 		end
 	end)
 	
@@ -387,6 +392,7 @@ normalizer = {
 	setup_supplies_fetch_task_lostzone_patch = "setup_fetch_task",
 	setup_generic_fetch_task = "setup_fetch_task",
 	drx_sl_create_quest_stash = "setup_bounty_task", -- The actor message in base vanilla files is sent to the wrong queue here
+	setup_dominance_task = "setup_assault_task", -- Same as above - this actually scraps the whole Dominance category and puts these tasks as assault tasks
 	multifetch_on_job_descr = "setup_fetch_task" -- Unnecessary thing, but there's only one task in this category
 }
 function normalize_task_effect(task_effect) 
