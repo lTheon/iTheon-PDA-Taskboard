@@ -13,4 +13,7 @@
 	<string id="ui_mcm_pda_taskboard_taskboard_key">
 		<text>Taskboard PDA shortcut</text>
 	</string>
+	<string id="ui_mcm_pda_taskboard_companions_give_tasks">
+		<text>Allow companions to give tasks</text>
+	</string>
 </string_table>
