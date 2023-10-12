@@ -12,4 +12,38 @@
 	<string id="pda_btn_taskboard">
 		<text>Доска объявлений</text>
 	</string>
+
+	<string id="st_pda_caption_setup_bounty_task">
+		<text>Баунти-задачи</text>
+	</string>
+	<string id="st_pda_caption_setup_assault_task">
+		<text>Задачи штурма лагеря</text>
+	</string>
+	<string id="st_pda_caption_setup_spy_task">
+		<text>Задачи по извлечению шпионов</text>
+	</string>
+	<string id="st_pda_caption_on_init_delivery_task">
+		<text>Задачи доставки</text>
+	</string>
+	<string id="st_pda_caption_setup_measure_task">
+		<text>Измерение задач</text>
+	</string>
+	<string id="st_pda_caption_on_init_fate_task">
+		<text>Судьбовые задания</text>
+	</string>
+	<string id="st_pda_caption_setup_dominance_task">
+		<text>Задачи доминирования</text>
+	</string>
+	<string id="st_pda_caption_setup_fetch_task">
+		<text>Получить задачи</text>
+	</string>
+	<string id="st_pda_caption_script">
+		<text>Сценарные задачи</text>
+	</string>
+	<string id="st_pda_caption_recover_mutant_data_location">
+		<text>Восстановить данные мутанта</text>
+	</string>
+	<string id="st_pda_caption_rest">
+		<text>Другие задачи</text>
+	</string>
 </string_table>
