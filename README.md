@@ -1,4 +1,4 @@
-# iTheon-PDA-Taskboard v1.0.3
+# iTheon-PDA-Taskboard v1.0.4
 
 This mod adds a new taskboard tab to the PDA where you can accept all the dynamic tasks remotely
 
@@ -36,6 +36,11 @@ https://github.com/Igigog - WTF support<br>
 https://github.com/flat34 - Rostok loner guards fix
 
 Changelog:
+
+v1.0.4
+- Add more exceptions to sim stalkers table.
+- Enable task category overrides to let modders create their own categories
+- Add category fallback (to 'rest') for tasks missing proper task category (missing string translation for a category)
 
 v1.0.3
 - Scrapped the Dominance task category, as it is dispatching messages to the same queue as Assault tasks, causing bugs with getting task details. These tasks will now appear as assault tasks.
