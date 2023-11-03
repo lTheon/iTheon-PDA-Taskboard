@@ -10,19 +10,10 @@
 	<string id="ui_mcm_pda_taskboard_scanning_range">
 		<text>Радиус сканирования</text>
 	</string>
-	<string id="ui_mcm_pda_taskboard_trim_text">
-		<text>Обрезать длинный текст</text>
-	</string>
-	<string id="ui_mcm_pda_taskboard_trim_text_desc">
-		<text>Отключите этот параметр, если хотите отключить обрезку деталей и описания заданий. Имейте в виду, что вам, вероятно, также потребуется изменить высоту строк, чтобы очень длинные описания не накладывались на другие задания.</text>
-	</string>
-	<string id="ui_mcm_pda_taskboard_list_row_height">
-		<text>Высота строк</text>
-	</string>
-	<string id="ui_mcm_pda_taskboard_list_row_height_desc">
-		<text>Используется вместе с обрезкой длинного текста. Этот параметр увеличит высоту строки описания задания, чтобы необрезанный текст не перекрывался. Имейте в виду, что эти изменения вступают в силу только после перезагрузки сохраненной игры.</text>
-	</string>
 	<string id="ui_mcm_pda_taskboard_taskboard_key">
-		<text>Иконка "Доска объявлений" в КПК</text>
+		<text>Открыть "Объявления" в КПК</text>
+	</string>
+	<string id="ui_mcm_pda_taskboard_companions_give_tasks">
+		<text>Разрешить компаньонам выдавать задания</text>
 	</string>
 </string_table>
