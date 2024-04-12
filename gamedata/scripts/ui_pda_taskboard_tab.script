@@ -235,7 +235,8 @@ local actually_is_sim = {
 	"bar_visitors_zhorik_stalker_guard2", 				-- Zhorik
 	"bar_arena_guard",									-- Liolik
 	"bar_dolg_general_zoneguard_stalker",				-- "Get out of here stalker" guy
-	"mil_smart_terrain_7_7_freedom_bodyguard_stalker"	-- Lukash's bodyguards
+	"mil_smart_terrain_7_7_freedom_bodyguard_stalker",	-- Lukash's bodyguards
+	"mil_smart_terrain_7_7_freedom_bodyguard2_stalker"	-- Lukash's bodyguards
 } 
 
 function trigger_generate_available_tasks(npc_list) 
