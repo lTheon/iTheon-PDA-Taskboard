@@ -36,6 +36,7 @@ https://github.com/Igigog - WTF support<br>
 https://github.com/flat34 - Rostok loner guards fix
 
 Changelog:
+
 v1.0.5
 - Disable Accept Task button when task limit is reached
 
