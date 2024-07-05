@@ -16,6 +16,17 @@
 		<text x="30" font="letterica16" r="170" g="170" b="170" align="l">st_pda_accept_task</text>
 	</btn_accept_task>
 
+	<btn_task_limit_reached x="630" y="35" width="20" height="20" stretch="1">
+		<texture>ui_inGame2_pda_taskboard_task_limit_reached</texture>
+		<text x="30" font="letterica16" align="l">st_pda_task_limit_reached</text>
+		<text_color>
+				<t r="220" g="0" b="0"/>
+				<d r="220" g="0" b="0"/>
+				<e r="220" g="0" b="0"/>
+				<h r="220" g="0" b="0"/>
+			</text_color>
+	</btn_task_limit_reached>
+
 	<btn_next_task x="630" y="75" width="20" height="20" stretch="1">
 		<texture>ui_inGame2_pda_taskboard_next</texture>
 		<text x="30" font="letterica16" r="170" g="170" b="170" align="l">st_pda_next_task</text>

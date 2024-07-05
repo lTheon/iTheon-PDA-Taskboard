@@ -14,5 +14,10 @@
         <texture id="ui_inGame2_pda_taskboard_refresh_h" x="200" y="0" width="50" height="50" />
         <texture id="ui_inGame2_pda_taskboard_refresh_t" x="200" y="0" width="50" height="50" />
         <texture id="ui_inGame2_pda_taskboard_refresh_d" x="200" y="100" width="50" height="50" />
+
+        <texture id="ui_inGame2_pda_taskboard_task_limit_reached_e" x="0" y="200" width="50" height="50" />
+        <texture id="ui_inGame2_pda_taskboard_task_limit_reached_h" x="0" y="200" width="50" height="50" />
+        <texture id="ui_inGame2_pda_taskboard_task_limit_reached_t" x="0" y="200" width="50" height="50" />
+        <texture id="ui_inGame2_pda_taskboard_task_limit_reached_d" x="0" y="200" width="50" height="50" />
 	</file>
 </w>

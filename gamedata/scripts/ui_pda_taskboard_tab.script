@@ -48,11 +48,15 @@ function ui_taskboard_row:__init(parent, row) super(parent, row)
 	self.task_accept_btn = xml:Init3tButton("btn_accept_task", self)
 	self.task_next_btn = xml:Init3tButton("btn_next_task", self)
 
+	self.task_limit_reached_btn = xml:Init3tButton("btn_task_limit_reached", self)
+	self.task_limit_reached_btn:Show(false);
+	self.task_limit_reached_btn:TextControl():SetTextColor(utils_xml.get_color("red",true));
+
 	parent.rows[row] = self
 
 	parent:Register(self.task_accept_btn, "task_accept_btn_" .. row)
 	parent:AddCallback("task_accept_btn_" .. row, ui_events.BUTTON_CLICKED, accept_task_callback_factory(parent, row), self)
-	
+
 	parent:Register(self.task_next_btn, "task_next_btn_" .. row)
 	parent:AddCallback("task_next_btn_" .. row, ui_events.BUTTON_CLICKED, next_task_in_category_callback_factory(parent, row), self)
 end
@@ -306,8 +310,9 @@ function update_task_entry(pda_tab, i, task_details)
 	if (not pda_tab.rows[i]) then
 		pda_tab.list:AddWindow(ui_taskboard_row(pda_tab, i))
 	end
+	local row = pda_tab.rows[i]
 
-	pda_tab.rows[i].task_category:SetText(game.translate_string('st_pda_caption_' .. current_board_state[i].task_effect))
+	row.task_category:SetText(game.translate_string('st_pda_caption_' .. current_board_state[i].task_effect))
 	
 	local stalker = level.object_by_id(task_details.npc_id)
 
@@ -316,23 +321,35 @@ function update_task_entry(pda_tab, i, task_details)
 	local stalker_name = stalker:character_name()
 	
 	stalker_icon = stalker_icon and stalker_icon ~= "" and stalker_icon or "ui\\ui_noise"
-	pda_tab.rows[i].icon_field:InitTexture(stalker_icon)
+	row.icon_field:InitTexture(stalker_icon)
 	
 	local stalker_info = stalker_name .. "\\n" ..
 	game.translate_string("ui_st_community") .. ": " .. game.translate_string(stalker_comm)
-	pda_tab.rows[i].stalker_info:SetText(stalker_info)
+	row.stalker_info:SetText(stalker_info)
 
 	local more_task_details = get_more_task_details(i) or {}
-	pda_tab.rows[i].task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
+	row.task_icon_field:InitTexture(more_task_details.task_icon or "ui\\ui_noise")
 
 	local details = (more_task_details.task_title or "") .. 
 	"\\n" .. 
 	(string.gsub(more_task_details.task_details or "", "\\n ", "\\n"))
-	pda_tab.rows[i].task_details_field:SetText(details)
+	row.task_details_field:SetText(details)
 
 	local full_desc = task_details.task_description or ""
-	pda_tab.rows[i].task_full_description_field:SetText(full_desc)
-	pda_tab.rows[i].task_next_btn:Show(has_more_task_in_category(i))
+	row.task_full_description_field:SetText(full_desc)
+	row.task_next_btn:Show(has_more_task_in_category(i))
+	manage_accept_button(stalker, row)
+end
+
+function manage_accept_button(stalker, row)
+	local reached_limit = dialogs.has_tasks_by_npc(stalker)
+	if reached_limit then
+		row.task_limit_reached_btn:Show(true)
+		row.task_accept_btn:Show(false)
+	else
+		row.task_limit_reached_btn:Show(false)
+		row.task_accept_btn:Show(true)
+	end
 end
 
 function has_more_task_in_category(i) 

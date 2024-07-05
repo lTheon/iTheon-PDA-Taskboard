@@ -3,6 +3,9 @@
 	<string id="st_pda_accept_task">
 		<text>Accept task</text>
 	</string>
+	<string id="st_pda_task_limit_reached">
+		<text>Task limit reached</text>
+	</string>
 	<string id="st_pda_refresh_tasks">
 		<text>Refresh tasks</text>
 	</string>
