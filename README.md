@@ -1,4 +1,4 @@
-# iTheon-PDA-Taskboard v1.0.4
+# iTheon-PDA-Taskboard v1.0.5
 
 This mod adds a new taskboard tab to the PDA where you can accept all the dynamic tasks remotely
 
@@ -36,6 +36,8 @@ https://github.com/Igigog - WTF support<br>
 https://github.com/flat34 - Rostok loner guards fix
 
 Changelog:
+v1.0.5
+- Disable Accept Task button when task limit is reached
 
 v1.0.4
 - Add more exceptions to sim stalkers table.
