@@ -27,11 +27,16 @@
 			</text_color>
 	</btn_task_limit_reached>
 
+	<btn_prev_task x="590" y="75" width="20" height="20" stretch="1">
+		<texture>ui_inGame2_pda_taskboard_prev</texture>
+		<text x="30" font="letterica16" r="170" g="170" b="170" align="l">st_pda_prev_task</text>
+	</btn_prev_task>
+	
 	<btn_next_task x="630" y="75" width="20" height="20" stretch="1">
 		<texture>ui_inGame2_pda_taskboard_next</texture>
 		<text x="30" font="letterica16" r="170" g="170" b="170" align="l">st_pda_next_task</text>
 	</btn_next_task>
-
+	
 	<btn_refresh_tasks x="658" y="94" width="20" height="20" stretch="1">
 		<texture>ui_inGame2_pda_taskboard_refresh</texture>
 		<text x="30" font="letterica16" r="170" g="170" b="170" align="l">st_pda_refresh_tasks</text>
