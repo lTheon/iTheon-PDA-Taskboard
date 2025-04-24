@@ -12,6 +12,9 @@
 	<string id="st_pda_next_task">
 		<text>Next task</text>
 	</string>
+	<string id="st_pda_prev_task">
+		<text>Previous task</text>
+	</string>
 	<string id="pda_btn_taskboard">
 		<text>Taskboard</text>
 	</string>
