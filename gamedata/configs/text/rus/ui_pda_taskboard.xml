@@ -1,52 +1,55 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <string_table>
 	<string id="st_pda_accept_task">
-		<text>Принять</text>
+		<text>ГЏГ°ГЁГ­ГїГІГј</text>
 	</string>
 	<string id="st_pda_task_limit_reached">
-		<text>Максимум заданий</text>
+		<text>ГЊГ ГЄГ±ГЁГ¬ГіГ¬ Г§Г Г¤Г Г­ГЁГ©</text>
 	</string>
 	<string id="st_pda_refresh_tasks">
-		<text>Обновить</text>
+		<text>ГЋГЎГ­Г®ГўГЁГІГј</text>
 	</string>
 	<string id="st_pda_next_task">
-		<text>Следующее</text>				
+		<text>Г‘Г«ГҐГ¤ГіГѕГ№ГҐГҐ</text>				
+	</string>
+	<string id="st_pda_prev_task">
+		<text>ГЏГ°ГҐГ¤Г»Г¤ГіГ№ГҐГҐ</text>				
 	</string>
 	<string id="pda_btn_taskboard">
-		<text>Объявления</text>
+		<text>ГЋГЎГєГїГўГ«ГҐГ­ГЁГї</text>
 	</string>
 
 	<string id="st_pda_caption_setup_bounty_task">
-		<text>Награда за голову</text>
+		<text>ГЌГ ГЈГ°Г Г¤Г  Г§Г  ГЈГ®Г«Г®ГўГі</text>
 	</string>
 	<string id="st_pda_caption_setup_assault_task">
-		<text>Зачистка лагеря</text>
+		<text>Г‡Г Г·ГЁГ±ГІГЄГ  Г«Г ГЈГҐГ°Гї</text>
 	</string>
 	<string id="st_pda_caption_setup_spy_task">
-		<text>Освобождение шпиона</text>
+		<text>ГЋГ±ГўГ®ГЎГ®Г¦Г¤ГҐГ­ГЁГҐ ГёГЇГЁГ®Г­Г </text>
 	</string>
 	<string id="st_pda_caption_on_init_delivery_task">
-		<text>Доставка</text>
+		<text>Г„Г®Г±ГІГ ГўГЄГ </text>
 	</string>
 	<string id="st_pda_caption_setup_measure_task">
-		<text>Замеры</text>
+		<text>Г‡Г Г¬ГҐГ°Г»</text>
 	</string>
 	<string id="st_pda_caption_on_init_fate_task">
-		<text>Судьба</text>
+		<text>Г‘ГіГ¤ГјГЎГ </text>
 	</string>
 	<string id="st_pda_caption_setup_dominance_task">
-		<text>Доминация</text>
+		<text>Г„Г®Г¬ГЁГ­Г Г¶ГЁГї</text>
 	</string>
 	<string id="st_pda_caption_setup_fetch_task">
-		<text>Сбор предметов</text>
+		<text>Г‘ГЎГ®Г° ГЇГ°ГҐГ¤Г¬ГҐГІГ®Гў</text>
 	</string>
 	<string id="st_pda_caption_script">
-		<text>Сюжетные задания</text>
+		<text>Г‘ГѕГ¦ГҐГІГ­Г»ГҐ Г§Г Г¤Г Г­ГЁГї</text>
 	</string>
 	<string id="st_pda_caption_recover_mutant_data_location">
-		<text>Данные о мутантах</text>
+		<text>Г„Г Г­Г­Г»ГҐ Г® Г¬ГіГІГ Г­ГІГ Гµ</text>
 	</string>
 	<string id="st_pda_caption_rest">
-		<text>Другие задания</text>
+		<text>Г„Г°ГіГЈГЁГҐ Г§Г Г¤Г Г­ГЁГї</text>
 	</string>
 </string_table>
