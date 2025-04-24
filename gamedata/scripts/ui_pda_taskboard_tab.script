@@ -47,6 +47,7 @@ function ui_taskboard_row:__init(parent, row) super(parent, row)
 	self.task_full_description_field = xml:InitTextWnd("task_full_description_field", self)
 	self.task_accept_btn = xml:Init3tButton("btn_accept_task", self)
 	self.task_next_btn = xml:Init3tButton("btn_next_task", self)
+	self.task_prev_btn = xml:Init3tButton("btn_prev_task", self)
 
 	self.task_limit_reached_btn = xml:Init3tButton("btn_task_limit_reached", self)
 	self.task_limit_reached_btn:Show(false);
@@ -59,6 +60,9 @@ function ui_taskboard_row:__init(parent, row) super(parent, row)
 
 	parent:Register(self.task_next_btn, "task_next_btn_" .. row)
 	parent:AddCallback("task_next_btn_" .. row, ui_events.BUTTON_CLICKED, next_task_in_category_callback_factory(parent, row), self)
+
+	parent:Register(self.task_prev_btn, "task_prev_btn_" .. row)
+	parent:AddCallback("task_prev_btn_" .. row, ui_events.BUTTON_CLICKED, prev_task_in_category_callback_factory(parent, row), self)
 end
 
 local prepared_tasks_data = {}
@@ -165,6 +169,34 @@ function next_task_in_category(pda_tab, row_index)
 		else 
 			-- In case the taskgiver has been deleted by the engine, reset the whole taskboard. Creating workaround
 			-- for deleted stalkers generates several edge cases and adds unnecessary complexity to the code - resetting is easier.
+			reset_taskboard(pda_tab)
+		end
+	end
+end
+
+function prev_task_in_category_callback_factory(pda_tab, row_index)
+	return function()
+		prev_task_in_category(pda_tab, row_index)
+	end
+end
+
+function prev_task_in_category(pda_tab, row_index)
+	local entry_info = current_board_state[row_index]
+	local prev_index = entry_info.current_index - 1
+	local prev_task = prepared_tasks_data[entry_info.task_effect][prev_index]
+
+	if prev_task then
+		local stalker = level.object_by_id(prev_task.npc_id)
+		if stalker then
+			prepare_task(prev_task)
+
+			CreateTimeEvent("prev_task_delay", "prev_task_delay", 0.05, function()
+				entry_info.current_index = prev_index
+				update_task_entry(pda_tab, row_index, prev_task)
+				a_taskboard_utils.adjust_rows(pda_tab)
+				return true
+			end)
+		else
 			reset_taskboard(pda_tab)
 		end
 	end
@@ -338,6 +370,8 @@ function update_task_entry(pda_tab, i, task_details)
 	local full_desc = task_details.task_description or ""
 	row.task_full_description_field:SetText(full_desc)
 	row.task_next_btn:Show(has_more_task_in_category(i))
+	row.task_prev_btn:Show(entry_info.current_index > 1)
+
 	manage_accept_button(stalker, row)
 end
 
